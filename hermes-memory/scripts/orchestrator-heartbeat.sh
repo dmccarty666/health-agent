@@ -27,6 +27,19 @@ ORCH_DIR="${PROJECT_DIR}/orchestrator"
 LOCK_FILE="${ORCH_DIR}/.lock"
 LOG_FILE="${ORCH_DIR}/heartbeat.log"
 HARD_TIMEOUT_SECONDS=900   # 15 min — generous; orchestrator should finish in <2 min
+HERMES_HOME="${HOME}"      # propagated to hermes sub-process
+
+# Ensure GOAL.md is readable by the orchestrator profile.
+# The hm-orchestrator SOUL resolves ~ relative to the subprocess $HOME, not
+# the heartbeat script's $HOME.  We symlink so that both root and dmccarty
+# contexts can find the file.
+_set_orchestrator_symlinks() {
+    local profile_dir="/home/dmccarty/.hermes/profiles/hm-orchestrator"
+    mkdir -p "$profile_dir"
+    ln -sf "${ORCH_DIR}/GOAL.md"  "${profile_dir}/GOAL.md"
+    ln -sf "${ORCH_DIR}/STATE.md" "${profile_dir}/STATE.md"
+    ln -sf "${ORCH_DIR}/HISTORY.md" "${profile_dir}/HISTORY.md"
+}
 
 # ---------------------------------------------------------------------------
 # Arg parsing
@@ -132,6 +145,7 @@ fi
 
 touch "$LOCK_FILE"
 trap 'rm -f "$LOCK_FILE"' EXIT
+_set_orchestrator_symlinks  # ensure GOAL.md is accessible to the hermes subprocess
 
 tick_started=$(date -u '+%Y-%m-%d %H:%M:%S UTC')
 echo "$tick_started tick: starting" >> "$LOG_FILE"
