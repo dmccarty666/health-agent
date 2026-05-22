@@ -10,11 +10,11 @@ extracted into `{{ '{{' }} placeholders {{ '}}' }}`.
 |---|---|---|---|---|
 | auditor | `auditor.md.tmpl` | ✅ DONE | 52 | 68 |
 | orchestrator | `orchestrator.md.tmpl` | ✅ DONE | 499 | 340 |
-| planner | `planner.md.tmpl` | ⏳ TODO | 361 | — |
-| architect | `architect.md.tmpl` | ⏳ TODO | 334 | — |
-| developer | `developer.md.tmpl` | ⏳ TODO | 386 | — |
-| qa | `qa.md.tmpl` | ⏳ TODO | 482 | — |
-| docs | `docs.md.tmpl` | ⏳ TODO | 317 | — |
+| planner | `planner.md.tmpl` | ✅ DONE | 361 | 370 |
+| architect | `architect.md.tmpl` | ✅ DONE | 334 | 343 |
+| developer | `developer.md.tmpl` | ✅ DONE | 386 | 370 |
+| qa | `qa.md.tmpl` | ✅ DONE | 482 | 370 |
+| docs | `docs.md.tmpl` | ✅ DONE | 317 | 316 |
 
 ## How to extract a new template
 
