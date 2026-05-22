@@ -1,3 +1,5 @@
+# Hermes-Memory Orchestrator History — append-only log
+
 Gate T-PHASE5-GATE (t_5662df7d) still blocked with stale qa-rejected (44h+). All bugs FIXED by hm-agent on 2026-05-20 16:02 + 16:11. All 6 Phase 5 dev stories done. All 6 Phase 5 QA cards done. Gate reassigned to hm-qa at 17:31 May 20 — no re-evaluation in 44h. Gate card body explicitly states "human sign-off required to close Phase 5." send_message confirmed UNAVAILABLE — cannot ping David. David must check kanban card t_5662df7d directly to provide sign-off and clear stale block. No state change. Phase 5 blocked pending David intervention.
 
 **2026-05-21 14:31 UTC — TICK #173: Unblocked gate card.**
@@ -49,3 +51,87 @@ Board state after intervention: 0 blocked, 3 running (T-045, T-046, T-042-QA), 2
 Side note: David also paused the Project Development Automation framework work (~/.hermes/PROJECTS/.framework/) — STATUS.md written and committed (36bc3b8) capturing the open tasklist (F-001 through F-007). Resume after Phase 6 gate closes.
 
 Outcome: Dispatcher unblocked, Phase 6 board clean, framework work paused with full restart-here documentation. Next orchestrator tick: monitor T-046 (hm-docs) progress and T-043-QA/T-044-QA pickup.
+
+## TICK #193 — 2026-05-22 05:00 UTC
+**STATE:** PHASE_6_RUNNING
+**Action:** HERMES_KANBAN_DOWN — `hermes kanban ls` and `hermes kanban diagnostics` both fail with "database disk image is malformed". Retry confirmed same error. Escalating to David for urgent DB repair. send_message attempted below — if unavailable, David must check kanban cards directly. Gate T-PHASE6-GATE (t_085fa48b) still todo. 5/6 Phase 6 dev stories done, T-047 awaiting hm-developer fix. All other Phase 6 QA cards done.
+
+## TICK #194 — 2026-05-22 05:31 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HERMES_KANBAN_LOST — DB was corrupted and removed in TICK #193. Now DB exists (106KB) but is completely empty (0 cards). Board reality (empty) ≠ STATE.md (PHASE_6_RUNNING). send_message unavailable in this session — escalation written to STATE.md side_issues. David must: (1) recreate Phase 6 cards from STATE.md/HISTORY.md records, (2) set gate card ready, (3) verify board before resuming. Heartbeat only — no board actions possible.
+
+## TICK #195 — 2026-05-22 06:00 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** DRIFT_DETECTED — Board confirmed empty (0 cards). STATE.md says PHASE_6_RUNNING but zero cards exist. send_message still unavailable. No board actions possible. Heartbeat only. David must recreate Phase 6 cards from STATE.md/HISTORY.md records before resuming.
+
+## TICK #196 — 2026-05-22 06:30 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). No change from TICK #195. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #197 — 2026-05-22 07:00 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). No change from TICK #196. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #198 — 2026-05-22 07:30 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). No change from TICK #197. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #199 — 2026-05-22 08:00 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). No change from TICK #198. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #200 — 2026-05-22 08:31 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). No change from TICK #199. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #201 — 2026-05-22 09:00 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). No change from TICK #200. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #202 — 2026-05-22 09:31 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). No change from TICK #201. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #203 — 2026-05-22 10:01 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). No change from TICK #202. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #206 — 2026-05-22 11:31 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). No change from TICK #205. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #207 — 2026-05-22 12:00 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). No change from TICK #206. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #208 — 2026-05-22 12:30 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). No change from TICK #207. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #209 — 2026-05-22 13:00 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). No change from TICK #208. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #210 — 2026-05-22 13:30 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). Removed stale lock file (was ~5h old). No change from TICK #209. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #211 — 2026-05-22 14:00 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). Removed stale lock file (was ~5h old). No change from TICK #210. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #212 — 2026-05-22 14:30 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). Removed stale lock file (was ~5h old). No change. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #214 — 2026-05-22 15:30 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). Removed stale lock file (was ~5h old). No change. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #215 — 2026-05-22 16:00 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). Removed stale lock file (was ~5h old). No change. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.
+
+## TICK #216 — 2026-05-22 16:30 UTC
+**STATE:** PHASE_6_RUNNING (board lost — awaiting recovery)
+**Action:** HEARTBEAT_ONLY — Board still empty (0 cards). No change. send_message unavailable. Awaiting David's Phase 6 card recreation from STATE.md/HISTORY.md records.

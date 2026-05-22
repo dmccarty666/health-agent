@@ -111,6 +111,7 @@ See `PROJECT.md §8` for the full register. Top three to watch in Sprint 1:
 | 2026-05-17 | **hm-planner decomposed Phase 1.** 11 cards on board: T-001 (plugin scaffold), T-002 (memory init CLI), T-003 (SQLite schema + migrations), T-004 (event schema), T-005 (JSONL append), T-006 (redaction scanner — Phase 1 security gate), T-007 (capture pipeline / sync_turn wiring), T-008 (QMD/Markdown exporter), T-009 (memory CLI smoke), T-007-qa (capture e2e verify), T-PHASE1-GATE (Scenarios A+B acceptance). All cards cross-ref Plan.md / TDD.md and carry the `software-development/test-driven-development` skill tag. |
 | 2026-05-17 | **First foundation code landed on disk** by hm-developer agents: `plugins/memory/hermes-local/__init__.py` (HermesLocalProvider, 4.6KB, production-grade) + `plugins/memory/hermes-local/plugin.yaml`. `hermes_memory_core/` scaffolded with all 7 subpackages (`chunk/`, `dream/`, `embed/`, `search/`, `source/`, `store/`, `write/`) matching TDD.md module layout. |
 | 2026-05-17 | **Autonomous build mode live.** 4 hm-developer instances running in parallel (T-001, T-003, T-004, T-006). Dispatcher routing tasks by skill. Orchestrator cron next-run 23:00. Telegram escalation wired for stuck/blocked/HUMAN-DECISION cards. David hands-off until phase gate or escalation. |
+| 2026-05-21 | T-046 user docs + operator runbook — README.md already existed (created T-001, 451 lines, comprehensive); created docs/RUNBOOK.md (14,270 bytes) covering backup, rebuild, dreamer ops, log locations, health checks, failure modes |
 
 ---
 
