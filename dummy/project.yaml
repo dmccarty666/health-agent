@@ -1,0 +1,105 @@
+# Dummy project — a minimal kanban-orchestrated project for bootstrap testing.
+
+project:
+  slug: dummy
+  dir_name: dummy
+  name: "Dummy Project"
+  domain: "A fake project for testing the kanban-orchestrated framework bootstrap pipeline"
+  description: |
+    Minimal project with two phases, two epic stories, and a handful of
+    tasks — used exclusively to validate that bootstrap.sh, render-soul.py,
+    and the SOUL templates all work together end-to-end without errors.
+  primary_language: python
+  primary_language_ext: py
+  test_command: "pytest tests/"
+  build_command: ""
+
+phases:
+  count: 2
+  acceptance_test_section: "§5"
+  planning_task_title_pattern: "T-PLAN-PHASE-{phase}: Decompose Phase {phase} of dummy"
+
+goal:
+  headline: |
+    Land Phase 1 and Phase 2 of the Dummy MVP — two simple stories each,
+    with tests green and docs updated.
+  out_of_scope:
+    - "Production deployment"
+    - "Multi-tenancy"
+    - "External API integrations"
+  hard_constraints:
+    - "Tests must pass before any card is marked done"
+    - "No hard-coded secrets in source"
+  acceptance_scenarios_pass:
+    - A
+    - B
+    - C
+
+escalation:
+  channel: none
+  contact: David
+  cooldown_hours: 24
+  notify_on:
+    - goal_achieved
+    - phase_gate_failed
+
+orchestrator:
+  cron_schedule: "*/30 * * * *"
+  heartbeat_cooldown_minutes: 10
+  max_actions_per_tick: 3
+  hard_timeout_seconds: 900
+
+models:
+  orchestrator:
+    provider: openrouter
+    model: "minimax/minimax-m2.7"
+  planner:
+    provider: openrouter
+    model: "minimax/minimax-m2.7"
+  architect:
+    provider: openrouter
+    model: "nvidia/nemotron-3-super-120b-a12b"
+  developer:
+    provider: openrouter
+    model: "minimax/minimax-m2.7"
+  qa:
+    provider: openrouter
+    model: "minimax/minimax-m2.7"
+  docs:
+    provider: openrouter
+    model: "moonshotai/kimi-k2"
+  auditor:
+    provider: openrouter
+    model: "moonshotai/kimi-k2"
+
+skills:
+  orchestrator:
+    - kanban-orchestrator
+  planner:
+    - kanban-worker
+  architect:
+    - kanban-worker
+  developer:
+    - kanban-worker
+  qa:
+    - kanban-worker
+  docs:
+    - kanban-worker
+  auditor: []
+
+paths:
+  source_root: "src/"
+  test_root: "tests/"
+  docs_root: "docs/"
+  adr_root: "docs/adr/"
+  repo_root: "~/.hermes/PROJECTS/dummy"
+  data_root: |
+    ~/.hermes/PROJECTS/dummy/data/
+
+inputs:
+  project_md: PROJECT.md
+  prd_md: prd.md
+  tdd_md: TDD.md
+  plan_md: Plan.md
+  epics_md: EPICS.md
+  tasklist_md: TASKLIST.md
