@@ -1,1 +1,5 @@
-# src/__init__.py — Dummy Project source package
+"""Dummy Project — source package."""
+
+from src import config
+
+__all__ = ["config"]

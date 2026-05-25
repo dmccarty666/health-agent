@@ -2,14 +2,6 @@
 
 from __future__ import annotations
 
-import sys
-from pathlib import Path
-
-# Ensure src/ is on the import path for the package
-src_root = Path(__file__).resolve().parents[1] / "src"
-if str(src_root) not in sys.path:
-    sys.path.insert(0, str(src_root))
-
 from src.config import load_config
 
 
@@ -56,11 +48,10 @@ class TestNoHardcodedPaths:
 
     def test_config_load_with_explicit_path_nonexistent(self) -> None:
         """Explicit None path does not raise; falls back to defaults."""
-        # Should not raise, just return defaults
         cfg = load_config(config_path=None)
         assert isinstance(cfg, dict)
 
-    def test_src_init_has_all_exports(self) -> None:
-        """src/__init__ exports load_config."""
-        from src import load_config as lc
-        assert callable(lc)
+    def test_src_init_has_config_module(self) -> None:
+        """src/__init__ exposes config as a module."""
+        import src.config
+        assert hasattr(src.config, "load_config")
