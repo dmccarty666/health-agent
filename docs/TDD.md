@@ -298,65 +298,29 @@ Never present yourself as a doctor — you are a decision support tool."""
 
 ## Frontend Architecture
 
-### Page Structure (SPA or multi-page)
+**UI Reference:** Blue2Scale codebase (`Blue2Scale.com/`) — analyzed and documented in `docs/STYLE-GUIDE.md`. All chart patterns, color system, component patterns, and animation behaviors should follow Blue2Scale conventions.
 
-```
-/                  → Today (home dashboard)
-/body              → Body composition
-/labs              → Bloodwork & DNA
-/fuel              → Diet & supplements
-/training          → Weight training
-/hermes            → AI chat
-/settings          → Profile & preferences
-/export            → Data export
-```
+### Tab Separation Rule (CRITICAL)
 
-### Component Tree
+**Each main nav tab is its own isolated page.** No single-page infinite scroll. No accordions. No collapsible sections that hide content. The sidebar switches between entirely separate views. Within each tab, use Blue2Scale-style sub-tabs where content would otherwise overflow (e.g., Body → Overview | Body Map | Trends).
 
-```
-App
-├── Sidebar / BottomNav (mobile)
-│   ├── Today
-│   ├── Body
-│   ├── Labs
-│   ├── Fuel
-│   ├── Training
-│   └── Hermes
-├── TodayPage
-│   ├── HealthScoreCard (composite)
-│   ├── RecoveryGauge
-│   ├── BodyCompDelta
-│   ├── WorkoutReadiness
-│   ├── LabAlertBanner
-│   ├── SupplementReminder
-│   └── HermesInsight
-├── BodyPage
-│   ├── MetricGrid (weight, BF%, lean mass, etc.)
-│   ├── TrendChart (per metric)
-│   └── ScanHistory
-├── LabsPage
-│   ├── BiomarkerDashboard (optimal/normal/high-risk zones)
-│   ├── MarkerDetail (single marker trend)
-│   ├── DNAContextPanel
-│   └── HermesExplanation
-├── FuelPage
-│   ├── MacroSummary
-│   ├── MicroRadar
-│   ├── SupplementStack
-│   ├── AdherenceCalendar
-│   └── DietLabCorrelations
-├── TrainingPage
-│   ├── WorkoutCalendar
-│   ├── ExerciseLog
-│   ├── VolumeByMuscleGroup
-│   ├── PRTracker
-│   └── RecoveryCost
-└── HermesPage
-    ├── ChatInterface
-    ├── WeeklyReview
-    ├── ProtocolCards
-    └── ReportGenerator
-```
+### Page Structure (SPA routing)
+
+### Component Tree (Per-Tab Isolation)
+
+Each tab is a self-contained page with its own components. No component spans across tabs.
+
+**Today Tab:** HealthScoreCard, RecoveryGauge, BodyCompDelta, WorkoutReadiness, LabAlertBanner, SupplementReminder, HermesInsight
+
+**Body Tab (sub-tabs: Overview | Body Map | Trends):** MetricCardGrid, BodyCompDonut, KeyMetricsList, BodyMapSVG (from Blue2Scale), MetricTrendChart
+
+**Labs Tab (sub-tabs: Dashboard | Trends | DNA):** BiomarkerTable (color-zoned rows), LabTrendChart, LabEntryForm, DNAContextPanel
+
+**Fuel Tab (sub-tabs: Diet | Supplements):** MacroSummaryChart, MicroRadarChart, DailyDietLog, SupplementStackList, AdherenceCalendar
+
+**Training Tab (sub-tabs: Calendar | Log | Progress):** WorkoutCalendar, ExerciseLibraryManager, SetLogForm, VolumeByMuscleChart, PRTracker
+
+**Hermes Tab (sub-tabs: Chat | Reports | Protocols):** ChatInterface, WeeklyReviewCard, ProtocolCardList, MonthlyReportViewer
 
 ## Security Considerations
 
