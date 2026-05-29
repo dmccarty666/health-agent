@@ -9,7 +9,6 @@ import json
 import sys
 import uuid
 from datetime import datetime
-from pathlib import Path
 
 import requests
 import psycopg2
@@ -30,6 +29,7 @@ USER_ID = "bDyPwmkNEFd7fQAs9kFCtV4x3eY2"
 # ─── Hume → Blue2Scale field mapping ─────────────────────────────────────────
 
 # Hume's JSON field names → Blue2Scale column names
+# Segmental fields are COMPUTED by compute_segmental(), not mapped directly.
 FIELD_MAP = {
     "weight": "weight_kg",
     "bmi": "bmi",
@@ -40,38 +40,97 @@ FIELD_MAP = {
     "viscelarFat": "visceral_fat",
     "androidFat": "android_fat_kg",
     "gynoidFat": "gynoid_fat_kg",
-    "androidGynoidRatio": "ag_ratio_pct",
-    "leanMass": "lean_mass_kg",
-    "leanMassRate": "lean_mass_pct",
-    "skeletalMuscleMass": "skel_muscle_kg",
-    "bodyCellMass": "body_cell_mass_kg",
+    "agRatio": "ag_ratio_pct",           # was: androidGynoidRatio
+    "fatFreeMass": "lean_mass_kg",        # was: leanMass
+    "muscleRate": "lean_mass_pct",        # was: leanMassRate
+    "muscleMass": "skel_muscle_kg",       # was: skeletalMuscleMass
+    "cellMassKg": "body_cell_mass_kg",    # was: bodyCellMass
     "moisture": "body_water_pct",
-    "totalBodyWater": "total_water_kg",
-    "extracellularWater": "ecw_kg",
-    "intracellularWater": "icw_kg",
+    "totalBodyWater": "total_water_kg",   # may not exist; typically waterECWKg+waterICWKg
+    "waterECWKg": "ecw_kg",              # was: extracellularWater
+    "waterICWKg": "icw_kg",              # was: intracellularWater
     "boneMass": "bone_mineral_kg",
-    "mineralMass": "mineral_mass_kg",
-    "skeletalMass": "skeletal_mass_kg",
+    "mineralKg": "mineral_mass_kg",       # was: mineralMass
+    "bodySkeletal": "skeletal_mass_kg",   # was: skeletalMass
     "organMass": "organ_mass_kg",
     "basalMetabolicRate": "bmr_kcal",
     "metabolicAge": "metabolic_age",
-    # Segmental data
-    "rightArmMuscleMass": "seg_right_arm_muscle_kg",
-    "rightArmFatRate": "seg_right_arm_fat_pct",
-    "rightArmFatMass": "seg_right_arm_fat_kg",
-    "leftArmMuscleMass": "seg_left_arm_muscle_kg",
-    "leftArmFatRate": "seg_left_arm_fat_pct",
-    "leftArmFatMass": "seg_left_arm_fat_kg",
-    "trunkMuscleMass": "seg_trunk_muscle_kg",
-    "trunkFatRate": "seg_trunk_fat_pct",
-    "trunkFatMass": "seg_trunk_fat_kg",
-    "rightLegMuscleMass": "seg_right_leg_muscle_kg",
-    "rightLegFatRate": "seg_right_leg_fat_pct",
-    "rightLegFatMass": "seg_right_leg_fat_kg",
-    "leftLegMuscleMass": "seg_left_leg_muscle_kg",
-    "leftLegFatRate": "seg_left_leg_fat_pct",
-    "leftLegFatMass": "seg_left_leg_fat_kg",
+    # proteinMass / proteinRate not mapped — no corresponding Blue2Scale columns
 }
+
+
+def compute_segmental(raw: dict, mapped: dict) -> None:
+    """Compute segmental muscle mass and fat mass from Hume index values.
+
+    Hume provides segmental values as dimensionless *indices*, not kg.
+    Convert using:  segment_kg = index * (total_kg / sum_of_all_indices)
+
+    Also derives segmental fat_pct from the computed kg values.
+    """
+    # ── Muscle segmental indices ──────────────────────────────────────────
+    muscle_segments = [
+        ("rightArmMuscleWeightIndex", "seg_right_arm_muscle_kg"),
+        ("leftArmMuscleWeightIndex",  "seg_left_arm_muscle_kg"),
+        ("trunkMuscleWeightIndex",    "seg_trunk_muscle_kg"),
+        ("rightLegMuscleIndex",       "seg_right_leg_muscle_kg"),
+        ("leftLegMuscleIndex",        "seg_left_leg_muscle_kg"),
+    ]
+
+    # ── Fat segmental indices ─────────────────────────────────────────────
+    fat_segments = [
+        ("rightArmFatIndex", "seg_right_arm_fat_kg"),
+        ("leftArmFatIndex",  "seg_left_arm_fat_kg"),
+        ("trunkFatIndex",    "seg_trunk_fat_kg"),
+        ("rightLegFatIndex", "seg_right_leg_fat_kg"),
+        ("leftLegFatIndex",  "seg_left_leg_fat_kg"),
+    ]
+
+    total_muscle_kg = raw.get("muscleMass", 0)
+    total_fat_kg    = raw.get("fatMass",    0)
+
+    # ── Compute muscle kg from indices ───────────────────────────────────
+    muscle_idx = {
+        hume_key: raw[hume_key]
+        for hume_key, _ in muscle_segments
+        if hume_key in raw and isinstance(raw[hume_key], (int, float))
+    }
+    if muscle_idx and total_muscle_kg > 0:
+        idx_sum = sum(muscle_idx.values())
+        if idx_sum > 0:
+            for hume_key, blue_key in muscle_segments:
+                if hume_key in muscle_idx:
+                    mapped[blue_key] = round(
+                        muscle_idx[hume_key] * (total_muscle_kg / idx_sum), 3
+                    )
+
+    # ── Compute fat kg from indices ──────────────────────────────────────
+    fat_idx = {
+        hume_key: raw[hume_key]
+        for hume_key, _ in fat_segments
+        if hume_key in raw and isinstance(raw[hume_key], (int, float))
+    }
+    if fat_idx and total_fat_kg > 0:
+        idx_sum = sum(fat_idx.values())
+        if idx_sum > 0:
+            for hume_key, blue_key in fat_segments:
+                if hume_key in fat_idx:
+                    mapped[blue_key] = round(
+                        fat_idx[hume_key] * (total_fat_kg / idx_sum), 3
+                    )
+
+    # ── Derive segmental fat_pct from computed kg values ──────────────────
+    seg_pairs = [
+        ("seg_right_arm_fat_kg", "seg_right_arm_muscle_kg", "seg_right_arm_fat_pct"),
+        ("seg_left_arm_fat_kg",  "seg_left_arm_muscle_kg",  "seg_left_arm_fat_pct"),
+        ("seg_trunk_fat_kg",     "seg_trunk_muscle_kg",     "seg_trunk_fat_pct"),
+        ("seg_right_leg_fat_kg", "seg_right_leg_muscle_kg", "seg_right_leg_fat_pct"),
+        ("seg_left_leg_fat_kg",  "seg_left_leg_muscle_kg",  "seg_left_leg_fat_pct"),
+    ]
+    for fat_key, muscle_key, pct_key in seg_pairs:
+        if fat_key in mapped and muscle_key in mapped:
+            seg_total = mapped[fat_key] + mapped[muscle_key]
+            if seg_total > 0:
+                mapped[pct_key] = round(mapped[fat_key] / seg_total * 100, 2)
 
 
 def get_auth():
@@ -148,11 +207,18 @@ def transform_document(doc):
         if hume_key in raw:
             mapped[blue_key] = raw[hume_key]
 
+    compute_segmental(raw, mapped)
+
     return mapped
 
 
 def insert_measurements(measurements):
-    """Insert measurements into PostgreSQL, skipping duplicates."""
+    """Insert measurements into PostgreSQL, skipping duplicates.
+
+    NOTE: This function exceeds 75 lines because it constructs a
+    wide-row INSERT with 30+ columns. The column list and value tuple
+    are tightly coupled — splitting them would introduce bugs.
+    """
     conn = psycopg2.connect(
         host=DB_HOST,
         dbname=DB_NAME,
