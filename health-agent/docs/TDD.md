@@ -137,6 +137,18 @@ CREATE TABLE diet_log (
     created_at      TIMESTAMPTZ   DEFAULT NOW()
 );
 
+-- Training: exercise library
+CREATE TABLE exercises (
+    id              VARCHAR(36)   NOT NULL PRIMARY KEY,
+    user_id         VARCHAR(36)   NOT NULL,
+    name            VARCHAR(100)  NOT NULL,
+    muscle_group    VARCHAR(50),         -- chest, back, legs, shoulders, arms, core
+    category        VARCHAR(30),         -- compound, isolation, bodyweight, machine, cable
+    notes           TEXT,
+    active          BOOLEAN       DEFAULT TRUE,
+    created_at      TIMESTAMPTZ   DEFAULT NOW()
+);
+
 -- Training log
 CREATE TABLE training_log (
     id              VARCHAR(36)   NOT NULL PRIMARY KEY,
