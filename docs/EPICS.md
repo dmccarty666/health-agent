@@ -18,7 +18,7 @@
 
 ## Quality Standard
 
-All epics reference `docs/QUALITY.md` for shared quality gates:
+All epics reference `docs/QUALITY.md` and `docs/STYLE-GUIDE.md` for shared quality gates:
 
 1. ✅ pytest tests/smoke/ -v
 2. ✅ pytest tests/unit/ -v --tb=short
