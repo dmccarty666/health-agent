@@ -21,7 +21,7 @@ Apple Health / HealthKit data import, lab report PDF parsing, DNA raw data file 
 
 **Points:** 4 | **Owner:** dev | **Status:** Proposed | **Prerequisite:** G1.3
 
-**What:** Accept uploaded lab report PDFs, extract marker names, values, units, and reference ranges. Support common lab report formats (LabCorp, Quest, etc.). Manual review/confirmation before saving.
+**What:** Accept uploaded lab report PDFs, extract marker names, values, units, and reference ranges. Support common lab report formats (LabCorp, Quest, etc.). Manual review/confirmation before saving. **David has years of blood work PDFs to ingest — this is the primary lab data source, not just a convenience feature.**
 
 **Tasks:**
 - [ ] Build PDF upload endpoint with file validation
@@ -50,7 +50,7 @@ Apple Health / HealthKit data import, lab report PDF parsing, DNA raw data file 
 
 **Points:** 3 | **Owner:** dev | **Status:** Proposed | **Prerequisite:** G1.2
 
-**What:** Parse 23andMe and AncestryDNA raw data files. Extract relevant health/trait markers (not full genome). Map to known interpretations. Store as context layer, not deterministic predictions.
+**What:** Parse 23andMe and AncestryDNA raw data files. Extract relevant health/trait markers (not full genome). Map to known interpretations. Store as context layer, not deterministic predictions. **David has initial partial DNA data and is about to get his full genome sequenced — the system must handle both partial and full genome data.**
 
 **Tasks:**
 - [ ] Build DNA file upload endpoint

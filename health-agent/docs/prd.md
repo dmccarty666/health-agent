@@ -25,7 +25,7 @@ A self-hosted personal health intelligence platform that aggregates all of David
 | FR1.1 | User profile with sex, age, height, weight, activity level | P0 |
 | FR1.2 | Body composition import from Hume Body Pod (via Blue2Scale/hume-influx) | P0 |
 | FR1.3 | Bloodwork/lab entry — manual input with date, marker name, value, unit, reference range | P0 |
-| FR1.4 | Supplement stack — name, dose, timing, purpose, adherence tracking | P1 |
+| FR1.4 | Supplement stack — name, dose, timing, purpose, adherence tracking. Initial import from ChatGPT memory export. | P0 |
 | FR1.5 | Weight training log — exercise, sets, reps, weight, date | P1 |
 | FR1.6 | Diet/nutrition — calories, macros, key micronutrients | P1 |
 | FR1.7 | DNA genetic context — raw data upload with marker/risk mapping | P2 |
@@ -86,6 +86,7 @@ A self-hosted personal health intelligence platform that aggregates all of David
 - Card-based layout with large rounded corners
 - Semantic color system: green (good), amber (watch), red (action), blue (info), purple (AI/Hermes)
 - Mobile-responsive (primary use: desktop, secondary: tablet/phone)
+- **Web-responsive only** — not a native mobile app. No React Native, no Swift/Kotlin.
 - Insight-over-data hierarchy — interpretation first, raw numbers second
 
 ### NFR3: Reliability
@@ -101,7 +102,7 @@ A self-hosted personal health intelligence platform that aggregates all of David
 
 ## Out of Scope (MVP)
 
-- Native iOS/Android apps (mobile web only for MVP)
+- Native iOS/Android apps (web-responsive only for MVP)
 - Real-time wearable sync (batch import only for MVP)
 - Social/sharing features
 - Multi-user support

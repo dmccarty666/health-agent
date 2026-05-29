@@ -18,9 +18,9 @@ Not a fitness tracker. Not a medical app. Not a diet app. A health intelligence 
 | Hume Body Pod scale (BLE) | Blue2Scale web app + hume-influx sync | P0 — core |
 | Bloodwork / lab results | Not started | P0 — differentiator |
 | DNA analysis (23andMe/Ancestry raw) | Not started | P1 |
-| Supplementation tracking | Not started | P1 |
+| Supplementation tracking | Not started — ChatGPT memory export has current stack | P0 |
 | Diet / nutrition | Not started | P1 |
-| Weight training | Not started | P1 |
+| Weight training | Not started — needs full CRUD calendar system | P0 |
 | Apple Health / HealthKit | Not started | P2 |
 | Wearables (Oura, WHOOP, Garmin) | Not started | P3 |
 
@@ -56,7 +56,8 @@ One AI drafts, another critiques. For long-running phases: Hermes Kanban + speci
 - Local-first, self-hosted. Zero per-token inference costs where possible.
 - Sensitive health data stays on-prem. No third-party cloud processing.
 - Dark-first UI with optional light mode.
-- Mobile-responsive web app (no native mobile required for MVP).
+- **Web-responsive only — NOT a native mobile app at this time.** Designed for desktop primary, tablet/phone secondary via responsive CSS.
+- Import data from existing sources: blood work PDFs (years of history), ChatGPT memory export (current supplementation), DNA raw data (partial existing + upcoming full genome).
 
 ## MVP Phases (from ChatGPT competitive analysis)
 

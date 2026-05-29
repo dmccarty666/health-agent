@@ -101,16 +101,18 @@ User profile, database schema, manual data entry for all health streams, Hume Bo
 
 ---
 
-## Story G1.4 — Supplement Stack
+## Story G1.4 — Supplement Stack + ChatGPT Import
 
-**Points:** 2 | **Owner:** dev | **Status:** Proposed | **Prerequisite:** G1.2
+**Points:** 3 | **Owner:** dev | **Status:** Proposed | **Prerequisite:** G1.2
 
-**What:** Supplement CRUD + adherence logging. Active stack view, add/edit/remove, daily adherence check-in.
+**What:** Supplement CRUD + adherence logging. Active stack view, add/edit/remove, daily adherence check-in. **Initial data load from ChatGPT memory export** — parse the exported conversation memory to extract the full supplementation list (name, dose, timing, purpose).
 
 **Tasks:**
 - [ ] Create `supplements` + `supplement_log` SQLAlchemy models
+- [ ] Build ChatGPT memory export parser — extract supplement entries from JSON/text export
+- [ ] Build import preview UI — review parsed supplements before saving
 - [ ] Build `GET /api/health/supplements` — active stack
-- [ ] Build `POST /api/health/supplements` — add
+- [ ] Build `POST /api/health/supplements` — add (manual or bulk import)
 - [ ] Build `PUT /api/health/supplements/:id` — edit
 - [ ] Build `DELETE /api/health/supplements/:id` — deactivate (soft)
 - [ ] Build `POST /api/health/supplements/:id/log` — adherence
@@ -121,39 +123,55 @@ User profile, database schema, manual data entry for all health streams, Hume Bo
 | # | Criterion | Test |
 |---|---|---|
 | G1.4-AC1 | Supplement added with name, dose, timing, purpose, start date | integration |
-| G1.4-AC2 | Active supplements list excludes soft-deleted items | unit |
-| G1.4-AC3 | Adherence log records taken/not-taken with timestamp | integration |
-| G1.4-AC4 | Editing supplement updates all fields | unit |
-| G1.4-AC5 | Adherence calendar shows daily check-in history | smoke |
+| G1.4-AC2 | ChatGPT memory export parsed and supplements extracted | integration |
+| G1.4-AC3 | Import preview shows parsed supplements before saving | smoke |
+| G1.4-AC4 | Active supplements list excludes soft-deleted items | unit |
+| G1.4-AC5 | Adherence log records taken/not-taken with timestamp | integration |
+| G1.4-AC6 | Editing supplement updates all fields | unit |
+| G1.4-AC7 | Adherence calendar shows daily check-in history | smoke |
 
-**Definition of Done:** Full supplement lifecycle (add → edit → log → deactivate), adherence tracking visible day-by-day, active stack always shows current supplements only.
+**Definition of Done:** Full supplement lifecycle (import → add → edit → log → deactivate). ChatGPT export provides initial dataset. Adherence tracking visible day-by-day. Active stack always shows current supplements only.
 
 ---
 
-## Story G1.5 — Weight Training Log
+## Story G1.5 — Weight Training: Full CRUD Calendar System
 
-**Points:** 2 | **Owner:** dev | **Status:** Proposed | **Prerequisite:** G1.2
+**Points:** 4 | **Owner:** dev | **Status:** Proposed | **Prerequisite:** G1.2
 
-**What:** Exercise-by-exercise training log with sets, reps, weight, RPE, and notes. Workout calendar view and per-exercise history.
+**What:** Full-featured workout tracker with CRUD operations on exercises and workouts across a calendar. Create/edit/delete exercises. Log workouts with sets, reps, weight, RPE per set. Calendar view for workout history. Exercise library management. Volume tracking by muscle group and week. PR detection. This is the primary training interface — not a side feature.
 
 **Tasks:**
 - [ ] Create `training_log` SQLAlchemy model
-- [ ] Build `GET /api/health/training` — list with ?from=&to=&exercise=
-- [ ] Build `POST /api/health/training` — add set
-- [ ] Build `GET /api/health/training/exercises` — distinct exercises
-- [ ] Build Training tab UI — log form + history + calendar
+- [ ] Create `exercises` table — exercise library with name, muscle group, category
+- [ ] Build `GET /api/health/training` — list with ?from=&to=&exercise=&muscle_group=
+- [ ] Build `POST /api/health/training` — add set(s) to a workout
+- [ ] Build `PUT /api/health/training/:id` — edit a set
+- [ ] Build `DELETE /api/health/training/:id` — delete a set
+- [ ] Build `GET /api/health/training/exercises` — exercise library CRUD
+- [ ] Build `POST /api/health/training/exercises` — add exercise to library
+- [ ] Build `GET /api/health/training/summary` — volume/PR/progression summary
+- [ ] Build calendar view UI — month grid with workout indicators
+- [ ] Build workout log form — exercise selector (from library), sets with reps/weight/RPE
+- [ ] Build exercise library manager UI — add/edit/delete exercises
+- [ ] Build volume by muscle group visualization (bar chart)
+- [ ] Build PR detection — flag new 1RM estimates
 
 **Acceptance Criteria:**
 
 | # | Criterion | Test |
 |---|---|---|
 | G1.5-AC1 | Training set recorded with exercise, sets, reps, weight, date | integration |
-| G1.5-AC2 | Filter by exercise returns only that exercise's history | unit |
-| G1.5-AC3 | Filter by date range works correctly | unit |
-| G1.5-AC4 | Multiple sets for same exercise+date stored correctly | integration |
-| G1.5-AC5 | Distinct exercise list returns unique names | smoke |
+| G1.5-AC2 | Exercise library CRUD — add, list, edit, delete exercises | integration |
+| G1.5-AC3 | Filter by exercise returns only that exercise's history | unit |
+| G1.5-AC4 | Filter by date range works correctly | unit |
+| G1.5-AC5 | Multiple sets for same exercise+date stored and displayed correctly | integration |
+| G1.5-AC6 | Calendar view shows month grid with workout indicators on active days | smoke |
+| G1.5-AC7 | Volume summary grouped by muscle group and week | integration |
+| G1.5-AC8 | PR detection identifies new estimated 1RM | unit |
+| G1.5-AC9 | Editing a set updates correctly | integration |
+| G1.5-AC10 | Deleting a set removes it from history | integration |
 
-**Definition of Done:** User can log workouts with sets/reps/weight, view history by exercise and date, exercise list populates from logged data.
+**Definition of Done:** Full CRUD workout tracker with exercise library, calendar view, volume tracking, and PR detection. User can manage their exercise catalog and log daily workouts with full edit/delete capabilities.
 
 ---
 
