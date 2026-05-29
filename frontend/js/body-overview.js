@@ -39,6 +39,12 @@
   var CHART_CDN = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js';
 
   /* ==================================================================
+   * STATE
+   * ================================================================== */
+
+  var initialized = false;
+
+  /* ==================================================================
    * HELPERS
    * ================================================================== */
 
@@ -52,6 +58,15 @@
       return v % 1 === 0 ? String(v) : v.toFixed(1);
     }
     return v;
+  }
+
+  /**
+   * Convert kg to lbs for display.  null/undefined → '--'.
+   * Conversion: lbs = kg × 2.20462
+   */
+  function fmtWeight(kg) {
+    if (kg === null || kg === undefined) return '--';
+    return fmtVal(Number(kg) * 2.20462);
   }
 
   /**
@@ -183,10 +198,10 @@
 
     var stats = [
       {
-        title: 'Weight', value: latest.weight_kg, unit: 'kg',
+        title: 'Weight', value: fmtWeight(latest.weight_kg), unit: 'lbs',
         gradient: 'stat-card-blue', icon: 'scale',
-        trend: oldest ? trend(latest.weight_kg, oldest.weight_kg, 'kg') : '',
-        spark: wSpark
+        trend: oldest ? trend(latest.weight_kg * 2.20462, oldest.weight_kg * 2.20462, 'lbs') : '',
+        spark: wSpark ? wSpark.map(function(v) { return v * 2.20462; }) : null
       },
       {
         title: 'Body Fat', value: latest.body_fat_pct, unit: '%',
@@ -195,10 +210,10 @@
         spark: fSpark
       },
       {
-        title: 'Muscle Mass', value: latest.skel_muscle_kg, unit: 'kg',
+        title: 'Muscle Mass', value: fmtWeight(latest.skel_muscle_kg), unit: 'lbs',
         gradient: 'stat-card-green', icon: 'dumbbell',
-        trend: oldest ? trend(latest.skel_muscle_kg, oldest.skel_muscle_kg, 'kg') : '',
-        spark: mSpark
+        trend: oldest ? trend(latest.skel_muscle_kg * 2.20462, oldest.skel_muscle_kg * 2.20462, 'lbs') : '',
+        spark: mSpark ? mSpark.map(function(v) { return v * 2.20462; }) : null
       },
       {
         title: 'Body Water', value: latest.body_water_pct, unit: '%',
@@ -241,17 +256,15 @@
    * Build the Body Composition card with donut chart canvas + side legend.
    */
   function renderCompositionCard(latest) {
-    // Compute values, filling nulls where possible
-    var fatMass = latest.fat_mass_kg != null ? Number(latest.fat_mass_kg) : 0;
+    // Pass fat/lean/water in lbs for the donut chart
+    var leanLbs  = latest.lean_mass_kg != null  ? Number(latest.lean_mass_kg) * 2.20462 : 0;
+    var fatLbs   = latest.fat_mass_kg != null   ? Number(latest.fat_mass_kg) * 2.20462 : 0;
+    var waterLbs = latest.total_water_kg != null ? Number(latest.total_water_kg) * 2.20462 : 0;
+    // Keep internal calculations in kg for leanPct
     var leanMass = latest.lean_mass_kg != null
       ? Number(latest.lean_mass_kg)
-      : (latest.weight_kg != null ? Number(latest.weight_kg) - fatMass : 0);
-    var waterKg  = latest.total_water_kg != null
-      ? Number(latest.total_water_kg)
-      : (latest.weight_kg != null && latest.body_water_pct != null
-        ? Number(latest.weight_kg) * Number(latest.body_water_pct) / 100 : 0);
+      : (latest.weight_kg != null ? Number(latest.weight_kg) - (latest.fat_mass_kg != null ? Number(latest.fat_mass_kg) : 0) : 0);
 
-    // Lean % — compute if missing
     var leanPct = latest.lean_mass_pct != null
       ? Number(latest.lean_mass_pct)
       : (latest.weight_kg != null && latest.weight_kg > 0
@@ -271,15 +284,15 @@
       '<div class="flex items-center justify-between">' +
       '<div class="flex items-center gap-2"><div class="h-3 w-3 rounded-full bg-blue-500"></div>' +
       '<span class="text-sm">Lean Mass</span></div>' +
-      '<span class="font-mono text-sm font-semibold">' + fmtVal(leanMass) + ' kg</span></div>' +
+      '<span class="font-mono text-sm font-semibold">' + fmtWeight(latest.lean_mass_kg) + ' lbs</span></div>' +
       '<div class="flex items-center justify-between">' +
       '<div class="flex items-center gap-2"><div class="h-3 w-3 rounded-full bg-amber-500"></div>' +
       '<span class="text-sm">Fat Mass</span></div>' +
-      '<span class="font-mono text-sm font-semibold">' + fmtVal(fatMass) + ' kg</span></div>' +
+      '<span class="font-mono text-sm font-semibold">' + fmtWeight(latest.fat_mass_kg) + ' lbs</span></div>' +
       '<div class="flex items-center justify-between">' +
       '<div class="flex items-center gap-2"><div class="h-3 w-3 rounded-full bg-cyan-500"></div>' +
       '<span class="text-sm">Water</span></div>' +
-      '<span class="font-mono text-sm font-semibold">' + fmtVal(waterKg) + ' kg</span></div>' +
+      '<span class="font-mono text-sm font-semibold">' + fmtWeight(latest.total_water_kg) + ' lbs</span></div>' +
       '<div class="pt-2 border-t border-border">' +
       '<div class="flex items-center justify-between">' +
       '<span class="text-sm font-medium">Lean %</span>' +
@@ -292,7 +305,7 @@
 
       '</div>';  // close .grid
 
-    return { html: html, donutData: { leanMass: leanMass, fatMass: fatMass, waterKg: waterKg } };
+    return { html: html, donutData: { leanLbs: leanLbs, fatLbs: fatLbs, waterLbs: waterLbs } };
   }
 
   /**
@@ -303,9 +316,15 @@
       { label: 'BMI',           value: latest.bmi,            unit: '',     icon: 'heart',       color: 'text-blue-500' },
       { label: 'Visceral Fat',  value: latest.visceral_fat,   unit: '',     icon: 'activity',    color: 'text-red-500' },
       { label: 'BMR',           value: latest.bmr_kcal,       unit: 'kcal', icon: 'flame',       color: 'text-amber-500' },
-      { label: 'Metabolic Age', value: latest.metabolic_age,  unit: 'yrs',  icon: 'zap',         color: 'text-purple-500' },
-      { label: 'Bone Mineral',  value: latest.bone_mineral_kg, unit: 'kg',  icon: 'dumbbell',    color: 'text-teal-500' }
+      { label: 'Bone Mineral',  value: fmtWeight(latest.bone_mineral_kg), unit: 'lbs', icon: 'dumbbell', color: 'text-teal-500' }
     ];
+
+    // Hide metabolic age when null; only add if there is a real value
+    if (latest.metabolic_age != null && latest.metabolic_age > 0) {
+      metrics.push(
+        { label: 'Metabolic Age', value: latest.metabolic_age, unit: 'yrs', icon: 'zap', color: 'text-purple-500' }
+      );
+    }
 
     var html = '<div class="card card-shadow card-accent-teal">' +
       '<div class="card-header">' +
@@ -337,32 +356,31 @@
         title: 'Fat Analysis', accent: 'card-accent-amber', dotColor: 'bg-amber-500',
         items: [
           { label: 'Body Fat',     value: latest.body_fat_pct,  unit: '%' },
-          { label: 'Subcut. Fat',  value: latest.subcut_fat_kg, unit: 'kg' },
-          { label: 'Visceral Fat', value: latest.visceral_fat,  unit: '' },
-          { label: 'Android Fat',  value: latest.android_fat_kg, unit: 'kg' }
+          { label: 'Subcut. Fat',  value: fmtWeight(latest.subcut_fat_kg), unit: 'lbs' },
+          { label: 'Visceral Fat', value: latest.visceral_fat,  unit: '' }
         ]
       },
       {
         title: 'Lean Mass', accent: 'card-accent-green', dotColor: 'bg-green-500',
         items: [
-          { label: 'Lean Mass',   value: latest.lean_mass_kg,    unit: 'kg' },
+          { label: 'Lean Mass',   value: fmtWeight(latest.lean_mass_kg),    unit: 'lbs' },
           { label: 'Lean %',      value: latest.lean_mass_pct,   unit: '%' },
-          { label: 'Muscle',      value: latest.skel_muscle_kg,  unit: 'kg' },
-          { label: 'Cell Mass',   value: latest.body_cell_mass_kg, unit: 'kg' }
+          { label: 'Muscle',      value: fmtWeight(latest.skel_muscle_kg),  unit: 'lbs' },
+          { label: 'Cell Mass',   value: fmtWeight(latest.body_cell_mass_kg), unit: 'lbs' }
         ]
       },
       {
         title: 'Hydration', accent: 'card-accent-cyan', dotColor: 'bg-cyan-500',
         items: [
           { label: 'Body Water',   value: latest.body_water_pct,  unit: '%' },
-          { label: 'Total Water',  value: latest.total_water_kg,  unit: 'kg' },
-          { label: 'ECW',          value: latest.ecw_kg,          unit: 'kg' },
-          { label: 'ICW',          value: latest.icw_kg,          unit: 'kg' }
+          { label: 'Total Water',  value: fmtWeight(latest.total_water_kg),  unit: 'lbs' },
+          { label: 'ECW',          value: fmtWeight(latest.ecw_kg),          unit: 'lbs' },
+          { label: 'ICW',          value: fmtWeight(latest.icw_kg),          unit: 'lbs' }
         ]
       }
     ];
 
-    var html = '<div class="grid grid-cols-1 md:grid-cols-3 gap-4" style="margin-top:1.5rem">';
+    var html = '<div class="grid grid-cols-1 md-grid-cols-3 gap-4" style="margin-top:1.5rem">';
     for (var c = 0; c < categories.length; c++) {
       var cat = categories[c];
       html += '<div class="card card-shadow ' + cat.accent + '">' +
@@ -430,7 +448,7 @@
       data: {
         labels: ['Lean Mass', 'Fat Mass', 'Water'],
         datasets: [{
-          data: [donutData.leanMass, donutData.fatMass, donutData.waterKg],
+          data: [donutData.leanLbs, donutData.fatLbs, donutData.waterLbs],
           backgroundColor: ['#3b82f6', '#f59e0b', '#06b6d4'],
           borderWidth: 0
         }]
@@ -444,7 +462,7 @@
           tooltip: {
             callbacks: {
               label: function (ctx) {
-                return ctx.label + ': ' + ctx.parsed.toFixed(1) + ' kg';
+                return ctx.label + ': ' + ctx.parsed.toFixed(1) + ' lbs';
               }
             }
           }
@@ -454,7 +472,7 @@
   }
 
   /* ==================================================================
-   * MAIN
+   * MAIN RENDER
    * ================================================================== */
 
   /**
@@ -519,16 +537,51 @@
     ensureChart(function () {
       renderDonut(compResult.donutData);
     });
+
+    initialized = true;
   }
 
   /* ==================================================================
-   * BOOTSTRAP
+   * PUBLIC API
    * ================================================================== */
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', render);
-  } else {
+  /**
+   * Initialize the body overview — fetch data and render.
+   * Called by the app shell when the Overview sub-tab activates.
+   */
+  function init() {
+    var container = document.getElementById(CONTAINER_ID) || document.getElementById(FALLBACK_ID);
+    if (!container) return;
+
+    if (window.HealthAgent && window.HealthAgent.ui && window.HealthAgent.ui.showLoading) {
+      HealthAgent.ui.showLoading('#' + CONTAINER_ID);
+    } else {
+      container.innerHTML = '<div class="loading-container">' +
+        '<i data-lucide="loader-2" class="loading-spinner"></i>' +
+        '</div>';
+      if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+    }
+
     render();
   }
+
+  /**
+   * Refresh — re-fetch and re-render.
+   */
+  function refresh() {
+    initialized = false;
+    render();
+  }
+
+  /* ==================================================================
+   * EXPORT
+   * ================================================================== */
+
+  window.HealthAgent = window.HealthAgent || {};
+  window.HealthAgent.bodyOverview = {
+    init: init,
+    refresh: refresh,
+    render: render
+  };
 
 })();
