@@ -98,7 +98,7 @@ Based on competitive analysis, these are the feature categories we should implem
 |---------|---------------|
 | Primary theme | Dark-first, optional light mode |
 | Mood | Premium, calm, analytical, masculine-neutral |
-| Layout | Card-based dashboard |
+| Layout | Card-based dashboard, tab-separated (not infinite scroll) |
 | Corners | Large rounded cards |
 | Typography | Clean sans-serif, Apple-like readability |
 | Data density | Low on home, high in drill-downs |
@@ -111,14 +111,18 @@ Based on competitive analysis, these are the feature categories we should implem
 
 ## 7. App Information Architecture
 
+**CRITICAL: Tab Separation Rule.** Each main tab is a SEPARATE page with its own focused, scrollable content. Do NOT build one long-scrolling page with sections, and do NOT use accordions/collapse panels to hide content. The sidebar navigation switches between entirely different views.
+
+**Content density rule:** Each tab's scrollable content should fit within ~2–3 viewport heights. If a tab exceeds this, it needs its own sub-tabs (like Blue2Scale's Overview/Body Map pattern).
+
 ### Main Tabs
 
-1. **Today** — Health Intelligence Score, recovery/readiness, body comp delta, workout recommendation, nutrition target, supplement reminders, Hermes daily insight
-2. **Body** — Weight, body fat %, lean mass, skeletal muscle, visceral fat, hydration, metabolic age, trend graphs, scan history
-3. **Labs** — Biomarker dashboard, out-of-range markers, optimal-range markers, lab history, DNA context, doctor questions, Hermes explanations
-4. **Fuel** — Calories/macros, micronutrients, supplement stack, timing, adherence, diet-lab correlations, food quality score
-5. **Training** — Schedule, workout log, muscle group volume, progressive overload, PRs, recovery cost, deload suggestions
-6. **Hermes** — Chat, weekly review, recommendations, protocols, "Explain my labs", "What changed?", "What should I do next?"
+1. **Today** — Health Intelligence Score, recovery/readiness, body comp delta, workout readiness, nutrition target, supplement reminders, Hermes daily insight. *Max 4 stat cards + 2 content cards + insight card.*
+2. **Body** — Weight, body fat %, lean mass, skeletal muscle, visceral fat, hydration, metabolic age. *Sub-tabs: Overview (donut + key metrics) | Body Map (segmental SVG) | Trends (line charts).*
+3. **Labs** — Biomarker dashboard with optimal/normal/high-risk zones, lab history, DNA context. *Sub-tabs: Dashboard (color-zoned table) | Trends (per-marker charts) | DNA (genetic context).*
+4. **Fuel** — Macros, micronutrients, supplement stack with adherence. *Sub-tabs: Diet (daily log + macro summary) | Supplements (stack + adherence calendar).*
+5. **Training** — Workout calendar, exercise log, volume by muscle group, PRs. *Sub-tabs: Calendar (month view) | Log (exercise CRUD) | Progress (volume charts + PRs).*
+6. **Hermes** — Chat, weekly review, recommendations, protocols. *Sub-tabs: Chat | Reports | Protocols.*
 
 ## 8. MVP Phase Plan
 
