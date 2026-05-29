@@ -7,13 +7,13 @@
 
 ---
 
-## Epic Overview
+**Epic Overview**
 
 | Phase | Epic | Doc | Scope | Est. Stories |
 |-------|------|-----|-------|-------------|
-| **G1** | Health Data Hub | `docs/G1_DATA_HUB.md` | User profile, DB schema, manual data entry, Hume sync, basic dashboard, Hermes chat | 8 |
+| **G1** | Health Data Hub | `docs/G1_DATA_HUB.md` | User profile, DB schema, manual data entry, Hume sync, ChatGPT supplement import, full workout CRUD, basic dashboard, Hermes chat | 8 |
 | **G2** | Intelligence Layer | `docs/G2_INTELLIGENCE.md` | Trend detection, scores, correlations, lab explanations, weekly review | 5 |
-| **G3** | Automation & Integrations | `docs/G3_AUTOMATION.md` | Apple Health, lab PDF parser, DNA parser, nutrition/strength import, automated recommendations | 5 |
+| **G3** | Automation & Integrations | `docs/G3_AUTOMATION.md` | Blood work PDF ingestion (years backlog), Apple Health, DNA parser (partial + full genome), nutrition/strength import, automated recommendations | 5 |
 | **G4** | Protocol Engine | `docs/G4_PROTOCOLS.md` | Goal-based protocols, supplement optimizer, periodization, physician reports | 4 |
 
 ## Quality Standard
