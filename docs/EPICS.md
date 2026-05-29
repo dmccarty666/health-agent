@@ -11,6 +11,7 @@
 
 | Phase | Epic | Doc | Scope | Est. Stories |
 |-------|------|-----|-------|-------------|
+| **G0** | Hume Body Pod Dashboard | `docs/G0_HUME_DASHBOARD.md` | Hume sync infra, FastAPI backend, dashboard shell, Body tab with Overview/Body Map/Trends sub-tabs. 6 stories for tmux subagents. | 6 |
 | **G1** | Health Data Hub | `docs/G1_DATA_HUB.md` | User profile, DB schema, manual data entry, Hume sync, ChatGPT supplement import, full workout CRUD, basic dashboard, Hermes chat | 8 |
 | **G2** | Intelligence Layer | `docs/G2_INTELLIGENCE.md` | Trend detection, scores, correlations, lab explanations, weekly review | 5 |
 | **G3** | Automation & Integrations | `docs/G3_AUTOMATION.md` | Blood work PDF ingestion (years backlog), Apple Health, DNA parser (partial + full genome), nutrition/strength import, automated recommendations | 5 |
@@ -32,7 +33,7 @@ All epics reference `docs/QUALITY.md` and `docs/STYLE-GUIDE.md` for shared quali
 ## Dependency Chain
 
 ```
-G1 (Data Hub) ──────► G2 (Intelligence) ──────► G3 (Automation) ──────► G4 (Protocols)
+G0 (Hume Dashboard) ──► G1 (Data Hub) ──► G2 (Intelligence) ──► G3 (Automation) ──► G4 (Protocols)
 ```
 
-G2 requires G1 data streams. G3 requires G2 intelligence layer. G4 requires G3 data breadth.
+G0 is unblocked and produces the first visible deliverable. G1 extends with remaining data sources.
