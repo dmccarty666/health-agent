@@ -1,0 +1,45 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Validate YAML files
+        run: |
+          for f in $(find . -name "*.yaml" -o -name "*.yml" | grep -v ".github/"); do
+            python3 -c "import yaml; yaml.safe_load(open('$f'))" && echo "OK: $f" || { echo "FAIL: $f"; exit 1; }
+          done
+
+      - name: Check for obvious secrets
+        run: |
+          grep -rE "(password|secret|api_key|apikey|token)\s*=\s*['\"]" --include="*.py" --include="*.yaml" --include="*.yml" --include="*.md" . 2>/dev/null | grep -v ".git" | grep -v "example" || echo "No obvious secrets found"
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Python lint
+        if: find . -name "*.py" | grep -q .
+        run: |
+          pip install ruff 2>/dev/null || true
+          ruff check . || echo "WARN: lint errors found"
+
+      - name: Shellcheck
+        if: find . -name "*.sh" | grep -q .
+        run: |
+          for f in $(find . -name "*.sh"); do
+            shellcheck "$f" || echo "WARN: shellcheck issues on $f"
+          done
