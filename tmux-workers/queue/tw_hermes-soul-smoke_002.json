@@ -1,0 +1,1 @@
+{"task_id": "tw_hermes-soul-smoke_002", "title": "Hermes SOUL smoke test", "body": "echo 'hello from tmux worker' && echo 'PID=$$' && sleep 1 && echo 'done'", "project": "test", "story_id": "test-1", "slug": "hermes-soul-smoke", "display_name": "test-1: Hermes SOUL smoke test", "seq": 2}

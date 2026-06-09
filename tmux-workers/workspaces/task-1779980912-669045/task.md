@@ -1,0 +1,1 @@
+Say hello from a tmux worker. Create a file /tmp/hw_<your_pid>.txt with the content 'Hello from worker PID <pid>!' where <pid> is your actual process ID. Then also print it to stdout. Report what you did in workspace/report.md.

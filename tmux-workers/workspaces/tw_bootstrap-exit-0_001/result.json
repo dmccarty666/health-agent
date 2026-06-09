@@ -1,0 +1,10 @@
+{
+  "task_id": "tw_bootstrap-exit-0_001",
+  "session": "tw_bootstrap-exit-0_001",
+  "status": "done",
+  "summary": "",
+  "artifacts": [
+    "worker.log"
+  ],
+  "exit_code": 0
+}
