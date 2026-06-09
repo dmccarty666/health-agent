@@ -1,0 +1,10 @@
+{
+  "task_id": "tw_exit-1-test_001",
+  "session": "tw_exit-1-test_001",
+  "status": "done",
+  "summary": "",
+  "artifacts": [
+    "worker.log"
+  ],
+  "exit_code": 0
+}

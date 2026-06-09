@@ -1,0 +1,32 @@
+{
+  "status": "done",
+  "task_id": "tw_bash-test-simple-echo_001",
+  "session": "tw_bash-test-simple-echo_001",
+  "story_id": "tw_bootstrap-final-test",
+  "summary": "[tw_bash-test-simple-echo_001] 2026-05-28T14:28:51-05:00 bootstrap.sh START\n[tw_bash-test-simple-echo_001] task: bash-test: simple echo\n[tw_bash-test-simple-echo_001] SOUL copied to workspace\n[tw_bash-test-simple-echo_001] task-type detected: bash\n[tw_bash-test-simple-echo_001] MODE B: executing task body as bash...\nhello from bootstrap\ndone\n[tw_bash-test-simple-echo_001] bash task exited with code 0\n[tw_bash-test-simple-echo_001] running quality gates...\nGATE SUMMARY: 5 passed, 0 failed",
+  "artifacts": [],
+  "gates_passed": [
+    "tests",
+    "linting",
+    "secrets",
+    "code_quality",
+    "commit"
+  ],
+  "gates_failed": [],
+  "tests_run": false,
+  "tests_passed": true,
+  "test_output": "",
+  "linter_passed": true,
+  "secrets_passed": true,
+  "code_quality_passed": true,
+  "commit_sha": "b0a518c8968512e7bfcd2d33944c09fe65c3ea9c",
+  "exit_code": 0,
+  "blocked_reason": null,
+  "failed_reason": null,
+  "checkpoint": {
+    "step": "completion: status=done",
+    "files_created": [],
+    "files_modified": [],
+    "next": "N/A"
+  }
+}

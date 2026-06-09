@@ -1,0 +1,1 @@
+Create a Python file /tmp/palindrome.py with two functions: reverse_string(s) returns the reversed string, and is_palindrome(s) returns True if s equals its reverse. Run the full quality gate suite on the code. Then write the standard result.json and call the webhook.

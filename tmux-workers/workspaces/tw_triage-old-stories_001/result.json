@@ -1,0 +1,10 @@
+{
+  "task_id": "tw_triage-old-stories_001",
+  "session": "tw_triage-old-stories_001",
+  "status": "done",
+  "summary": "K-5 triage done",
+  "artifacts": [
+    "worker.log"
+  ],
+  "exit_code": 0
+}

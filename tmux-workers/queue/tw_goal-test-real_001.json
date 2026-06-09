@@ -1,0 +1,1 @@
+{"task_id": "tw_goal-test-real_001", "title": "Goal test: real judge", "body": "Create /tmp/goal-counter.txt containing the number 1.", "project": null, "story_id": null, "slug": "goal-test-real", "display_name": "Goal test: real judge", "seq": 1, "goal": "File /tmp/goal-counter.txt must contain the number 10 or higher", "goal_max_turns": 4}

@@ -1,0 +1,29 @@
+{
+  "status": "done",
+  "task_id": "tw_attach-test_001",
+  "session": "tw_attach-test_001",
+  "story_id": "test-attach",
+  "summary": "[tw_attach-test_001] 2026-05-28T17:21:11-05:00 bootstrap.sh START\n[tw_attach-test_001] task: Attach test\n[tw_attach-test_001] SOUL copied to workspace\n[tw_attach-test_001] task-type: bash\nhello-from-attach-test\ndone",
+  "artifacts": [],
+  "gates_passed": [
+    "tests",
+    "linting",
+    "secrets",
+    "code_quality",
+    "commit"
+  ],
+  "gates_failed": [],
+  "tests_run": true,
+  "tests_passed": true,
+  "linter_passed": true,
+  "secrets_passed": true,
+  "code_quality_passed": true,
+  "commit_sha": "",
+  "exit_code": 0,
+  "blocked_reason": null,
+  "failed_reason": null,
+  "checkpoint": {
+    "step": "status=done",
+    "next": "N/A"
+  }
+}

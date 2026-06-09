@@ -1,0 +1,15 @@
+[tw_bash-test-simple-echo_001] 2026-05-28T14:28:51-05:00 bootstrap.sh START
+[tw_bash-test-simple-echo_001] task: bash-test: simple echo
+[tw_bash-test-simple-echo_001] SOUL copied to workspace
+[tw_bash-test-simple-echo_001] task-type detected: bash
+[tw_bash-test-simple-echo_001] MODE B: executing task body as bash...
+hello from bootstrap
+done
+[tw_bash-test-simple-echo_001] bash task exited with code 0
+[tw_bash-test-simple-echo_001] running quality gates...
+GATE SUMMARY: 5 passed, 0 failed
+result.json written: status=done, gates_passed=5, gates_failed=0
+[tw_bash-test-simple-echo_001] result.json status: done
+[tw_bash-test-simple-echo_001] posting completion to http://localhost:9876/webhook/completion...
+[tw_bash-test-simple-echo_001] webhook HTTP response: 200
+[tw_bash-test-simple-echo_001] bootstrap.sh DONE — exiting

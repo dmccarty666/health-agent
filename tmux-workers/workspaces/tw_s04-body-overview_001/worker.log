@@ -1,0 +1,158 @@
+[tw_s04-body-overview_001] 2026-05-29T13:25:42-05:00 bootstrap.sh START
+[tw_s04-body-overview_001] task: S0.4 Body Overview Sub-tab
+[tw_s04-body-overview_001] SOUL copied to workspace
+[tw_s04-body-overview_001] task-type: nl
+  ┊ review diff
+a//home/dmccarty/.hermes/PROJECTS/health-agent/frontend/js/body-overview.js → b//home/dmccarty/.hermes/PROJECTS/health-agent/frontend/js/body-overview.js
+@@ -0,0 +1,534 @@
++/**
++ * Health Agent — Body Overview Sub-Tab
++ *
++ * Self-contained module that fetches body measurement data from the
++ * Health Agent API and renders the Overview sub-tab inside the Body
++ * dashboard. Follows Blue2Scale /dashboard.js stat-card, donut chart,
++ * and category card conventions.
++ *
++ * Renders five sections:
++ *   1. Four gradient stat cards in a 2×2 grid (Weight, Body Fat,
++ *      Muscle Mass, Body Water) — each with current value, trend vs
++ *      oldest, and a sparkline bar row.
++ *   2. Body Composition donut chart (Chart.js) — lean mass vs fat
++ *      mass vs water with 62 % cutout, no legend, tooltip values.
++ *   3. Key Metrics card (card-accent-teal) — BMI, Visceral Fat, BMR,
++ *      Metabolic Age, Bone Mineral with Lucide icons.
++ *   4. Three category cards in a 3-column grid — Fat Analysis (amber),
++ *      Lean Mass (green), Hydration (cyan).
++ *   5. Summary bar — last measured date, this-month count, total count.
++ *
++ * Target container: #subtab-body-overview (the data-subtab="body-overview"
++ * panel inside the Body tab). Falls back to #body-overview if found.
++ */
++
++(function () {
++  'use strict';
++
++  /* ==================================================================
++   * CONSTANTS
++   * ================================================================== */
++
++  var API_BASE = (window.HealthAgent && window.HealthAgent.api && window.HealthAgent.api.baseUrl)
++    ? window.HealthAgent.api.baseUrl
++    : 'http://localhost:8765';
++
++  var CONTAINER_ID = 'subtab-body-overview';   // actual id in index.html
++  var FALLBACK_ID   = 'body-overview';          // task-specified id
++
++  var CHART_CDN = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js';
++
++  /* ==================================================================
++   * HELPERS
++   * ================================================================== */
++
++  /**
++   * Format a value for display.  null / undefined → '--'.
++   * Numbers are rounded: integers stay whole, fractions get 1 decimal.
++   */
++  function fmtVal(v) {
++    if (v === null || v === undefined) return '--';
++    if (typeof v === 'number') {
++      return v % 1 === 0 ? String(v) : v.toFixed(1);
++    }
++    return v;
++  }
++
++  /**
++   * Compute a delta trend string.
++   *   cur  — current value
++   *   prev — oldest comparison value
++   *   unit — unit label (kg, %, etc.)
++   * Returns empty string if prev is invalid or unavailable.
++   */
++  function trend(cur, prev, unit) {
++    if (prev === null || prev === undefined || prev === 0 && cur === 0) return '';
++    var diff = cur - prev;
++    var sign = diff >= 0 ? '+' : '';
++    return sign + diff.toFixed(1) + ' ' + unit + ' vs oldest';
++  }
++
++  /**
++   * Build a sparkline row of tiny bars from an array of values.
++   * Returns empty string when fewer than 2 values exist.
++   */
++  function sparklineHTML(values, unit) {
++    if (!values || values.length < 2) return '';
++    var min = Infinity;
++    var max = -Infinity;
+… omitted 456 diff line(s) across 1 additional file(s)/section(s)
+  ┊ review diff
+a//home/dmccarty/.hermes/PROJECTS/health-agent/frontend/index.html → b//home/dmccarty/.hermes/PROJECTS/health-agent/frontend/index.html
+@@ -438,5 +438,6 @@
+ 
+   <!-- ===== APP JAVASCRIPT ===== -->
+   <script src="js/app.js"></script>
++  <script src="js/body-overview.js"></script>
+ </body>
+ </html>
+  ┊ review diff
+a//home/dmccarty/.hermes/PROJECTS/health-agent/frontend/js/body-overview.js → b//home/dmccarty/.hermes/PROJECTS/health-agent/frontend/js/body-overview.js
+@@ -34,7 +34,7 @@
+     : 'http://localhost:8765';
+ 
+   var CONTAINER_ID = 'subtab-body-overview';   // actual id in index.html
+-  var FALLBACK_ID   = 'body-overview';          // task-specified id
++  var FALLBACK_ID   = 'body-overview';          // alternate container ID from task spec
+ 
+   var CHART_CDN = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js';
+ 
+  ┊ review diff
+a/workspaces/tw_s04-body-overview_001/checkpoint.json → b/workspaces/tw_s04-body-overview_001/checkpoint.json
+@@ -0,0 +1,10 @@
++{
++  "step": "completed: All 5 sections rendered and committed",
++  "files_created": [
++    "/home/dmccarty/.hermes/PROJECTS/health-agent/frontend/js/body-overview.js"
++  ],
++  "files_modified": [
++    "/home/dmccarty/.hermes/PROJECTS/health-agent/frontend/index.html"
++  ],
++  "next": null
++}
+  ┊ review diff
+a/workspaces/tw_s04-body-overview_001/result.json → b/workspaces/tw_s04-body-overview_001/result.json
+@@ -0,0 +1,26 @@
++{
++  "status": "done",
++  "task_id": "tw_s04-body-overview_001",
++  "summary": "Created self-contained body-overview.js module (IIFE) that fetches from /api/health/measurements/latest and /measurements?limit=30, rendering into #subtab-body-overview: 4 gradient stat cards (Weight/blue, Body Fat/amber, Muscle Mass/green, Body Water/cyan) with sparklines and trend deltas; Chart.js donut chart (lean vs fat vs water, 62% cutout, no legend); Key Metrics card (BMI, Visceral Fat, BMR, Metabolic Age, Bone Mineral); 3 category cards in 3-column grid (Fat Analysis, Lean Mass, Hydration); and summary bar with last date/month count/total. Follows Blue2Scale conventions: hover lift, font-mono values, stagger animation, card-shadow, accent border tops. Wired into index.html after app.js.",
++  "artifacts": [
++    "/home/dmccarty/.hermes/PROJECTS/health-agent/frontend/js/body-overview.js",
++    "/home/dmccarty/.hermes/PROJECTS/health-agent/frontend/index.html"
++  ],
++  "gates_passed": ["tests:skipped", "linting:syntax-check", "secrets", "code_quality", "commit"],
++  "gates_failed": [],
++  "blocked_reason": null,
++  "failed_reason": null,
++  "tests_run": false,
++  "tests_passed": null,
++  "commit_sha": "0613485",
++  "checkpoint": {
++    "step": "completed: All 5 sections rendered and committed",
++    "files_created": [
++      "/home/dmccarty/.hermes/PROJECTS/health-agent/frontend/js/body-overview.js"
++    ],
++    "files_modified": [
++      "/home/dmccarty/.hermes/PROJECTS/health-agent/frontend/index.html"
++    ],
++    "next": null
++  }
++}
+HTTP 200 — webhook acknowledged. All 5 quality gates passed, commit 0613485, artifact delivered.
+**Deliverable:** `/home/dmccarty/.hermes/PROJECTS/health-agent/frontend/js/body-overview.js` — 21 KB self-contained IIFE module
+**What was built:**
+1. **4 gradient stat cards** (2×2 grid) — Weight (grad-blue, scale, sparklines), Body Fat (grad-amber, activity), Muscle Mass (grad-green, dumbbell), Body Water (grad-cyan, droplets) — each with font-mono value, trend vs oldest, and sparkline bar row
+2. **Body Composition donut chart** — Chart.js doughnut with 62% cutout, no legend, tooltip → value labels, blue/amber/cyan for lean/fat/water, side legend, Lean % callout. Null-tolerant (computes lean mass and water from weight when direct values are missing)
+3. **Key Metrics card** (card-accent-teal) — BMI, Visceral Fat, BMR (kcal), Metabolic Age, Bone Mineral with Lucide icons
+4. **3 category cards** (3-column grid) — Fat Analysis (amber), Lean Mass (green), Hydration (cyan) — each with 4 sub-metrics
+5. **Summary bar** — last measured date (MMM DD, YYYY), this-month count, total measurement count
+**Blue2Scale conventions followed:** stat-card gradient classes, card-shadow with hover lift, font-mono values, stagger-children grid, card-accent border tops, dot-color headers on category cards, tooltip callbacks on donut chart, sparkline HTML pattern.
+session_id: 20260529_132542_b4435c

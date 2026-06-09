@@ -1,0 +1,29 @@
+{
+  "status": "failed",
+  "task_id": "tw_convert-units-to_001",
+  "session": "tw_convert-units-to_001",
+  "story_id": "F-0.8",
+  "summary": "[tw_convert-units-to_001] 2026-05-29T16:02:01-05:00 bootstrap.sh START\n[tw_convert-units-to_001] task: Convert Units to LBS & Fix Fat Analysis Card\n[tw_convert-units-to_001] SOUL copied to workspace\n[tw_convert-units-to_001] task-type: bash\nbash: line 1: Fix: command not found\nbash: line 3: The: command not found\nbash: line 5: ISSUES: command not found\nbash: -c: line 7: syntax error near unexpected token `('\nbash: -c: line 7: `1. UNIT CONVERSION (kg \u2192 lbs):'",
+  "artifacts": [],
+  "gates_passed": [
+    "tests",
+    "linting",
+    "secrets",
+    "code_quality",
+    "commit"
+  ],
+  "gates_failed": [],
+  "tests_run": true,
+  "tests_passed": true,
+  "linter_passed": true,
+  "secrets_passed": true,
+  "code_quality_passed": true,
+  "commit_sha": "",
+  "exit_code": 2,
+  "blocked_reason": null,
+  "failed_reason": "exit code 2",
+  "checkpoint": {
+    "step": "status=failed",
+    "next": "N/A"
+  }
+}

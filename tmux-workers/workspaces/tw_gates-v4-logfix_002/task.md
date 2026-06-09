@@ -1,0 +1,1 @@
+Write a Python module at /tmp/palindrome.py that implements is_palindrome(s) returning True if s reads the same forwards and backwards (ignore case and spaces). Create /tmp/tests/test_palindrome.py with pytest tests. Run pytest. Run ruff linting. Write result.json with status done. POST webhook to http://localhost:9876/webhook/completion.

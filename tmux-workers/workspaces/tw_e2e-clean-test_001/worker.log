@@ -1,0 +1,13 @@
+[tw_e2e-clean-test_001] 2026-05-28T14:37:11-05:00 bootstrap.sh START
+[tw_e2e-clean-test_001] task: e2e-clean-test
+[tw_e2e-clean-test_001] SOUL copied to workspace
+[tw_e2e-clean-test_001] task-type: bash
+[tw_e2e-clean-test_001] MODE B: executing bash task...
+e2e-clean
+ok
+[tw_e2e-clean-test_001] bash exited: code=0
+[tw_e2e-clean-test_001] running quality gates...
+  File "<stdin>", line 5
+    defGate(name, passed, output):
+                                 ^
+SyntaxError: invalid syntax

@@ -1,0 +1,31 @@
+{
+  "status": "done",
+  "task_id": "tw_e2e-profile-v1_001",
+  "session": "tw_e2e-profile-v1_001",
+  "story_id": "story_profile_v1",
+  "summary": "eated\": [\"/tmp/fizzbuzz_pf.py\", \"/tmp/tests_pf/test_fizzbuzz.py\"],\n+    \"files_modified\": [],\n+    \"next\": \"none\"\n+  }\n+}\nWebhook returned 200. All done.\n**Summary:**\n- `/tmp/fizzbuzz_pf.py` \u2014 `fizzbuzz(n)` with type hints, docstring, and ValueError guard\n- `/tmp/tests_pf/test_fizzbuzz.py` \u2014 5 tests: n=1, n=15, n=30, zero-raises, negative-raises\n- **Tests:** 5/5 passed\n- **Ruff:** all checks passed\n- **Secrets:** zero matches\n- **Webhook:** HTTP 200\nExiting 0.\nsession_id: 20260528_170546_6f5fc3",
+  "artifacts": [
+    "checkpoint.json"
+  ],
+  "gates_passed": [
+    "tests",
+    "linting",
+    "secrets",
+    "code_quality",
+    "commit"
+  ],
+  "gates_failed": [],
+  "tests_run": true,
+  "tests_passed": true,
+  "linter_passed": true,
+  "secrets_passed": true,
+  "code_quality_passed": true,
+  "commit_sha": "",
+  "exit_code": 0,
+  "blocked_reason": null,
+  "failed_reason": null,
+  "checkpoint": {
+    "step": "status=done",
+    "next": "N/A"
+  }
+}

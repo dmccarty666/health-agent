@@ -1,0 +1,1 @@
+{"task_id": "tw_goal-counter-to_001", "title": "Goal: counter to 10", "body": "Create /tmp/goal-counter.txt containing the number 1.", "project": null, "story_id": null, "slug": "goal-counter-to", "display_name": "Goal: counter to 10", "seq": 1, "goal": "The file /tmp/goal-counter.txt must contain a number 10 or higher", "goal_max_turns": 4}
