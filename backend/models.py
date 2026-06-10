@@ -132,7 +132,73 @@ class TrendPoint(BaseModel):
 
 class HealthzOut(BaseModel):
     """Health-check response."""
-
     status: str = "ok"
     database: str = "connected"
+    measurement_count: int = 0
+
+
+# ---------------------------------------------------------------------------
+# Ingest — POST /api/ingest/measurement
+# ---------------------------------------------------------------------------
+#
+# The Pi BLE listener (or any other local data source) posts a full body
+# composition record here. Schema matches MeasurementOut, minus the server-
+# assigned fields (id, user_id). The route is HMAC-authenticated via headers.
+# ---------------------------------------------------------------------------
+
+class IngestMeasurementIn(BaseModel):
+    """Payload posted by a local data source (Pi BLE listener, manual entry, etc.)."""
+
+    measured_at: datetime
+    device_name: Optional[str] = None
+    note: Optional[str] = None
+
+    # All 39 body composition fields — same as MeasurementOut, all optional
+    weight_kg: Optional[float] = None
+    bmi: Optional[float] = None
+    body_fat_pct: Optional[float] = None
+    fat_mass_kg: Optional[float] = None
+    subcut_fat_kg: Optional[float] = None
+    subcut_fat_pct: Optional[float] = None
+    visceral_fat: Optional[float] = None
+    android_fat_kg: Optional[float] = None
+    gynoid_fat_kg: Optional[float] = None
+    ag_ratio_pct: Optional[float] = None
+    lean_mass_kg: Optional[float] = None
+    lean_mass_pct: Optional[float] = None
+    skel_muscle_kg: Optional[float] = None
+    body_cell_mass_kg: Optional[float] = None
+    body_water_pct: Optional[float] = None
+    total_water_kg: Optional[float] = None
+    ecw_kg: Optional[float] = None
+    icw_kg: Optional[float] = None
+    bone_mineral_kg: Optional[float] = None
+    mineral_mass_kg: Optional[float] = None
+    skeletal_mass_kg: Optional[float] = None
+    organ_mass_kg: Optional[float] = None
+    bmr_kcal: Optional[float] = None
+    metabolic_age: Optional[int] = None
+    seg_right_arm_muscle_kg: Optional[float] = None
+    seg_right_arm_fat_pct: Optional[float] = None
+    seg_right_arm_fat_kg: Optional[float] = None
+    seg_left_arm_muscle_kg: Optional[float] = None
+    seg_left_arm_fat_pct: Optional[float] = None
+    seg_left_arm_fat_kg: Optional[float] = None
+    seg_trunk_muscle_kg: Optional[float] = None
+    seg_trunk_fat_pct: Optional[float] = None
+    seg_trunk_fat_kg: Optional[float] = None
+    seg_right_leg_muscle_kg: Optional[float] = None
+    seg_right_leg_fat_pct: Optional[float] = None
+    seg_right_leg_fat_kg: Optional[float] = None
+    seg_left_leg_muscle_kg: Optional[float] = None
+    seg_left_leg_fat_pct: Optional[float] = None
+    seg_left_leg_fat_kg: Optional[float] = None
+
+
+class IngestOut(BaseModel):
+    """Response from a successful ingest."""
+    status: str = "ok"
+    action: str  # "inserted" | "updated"
+    measured_at: datetime
+    device_name: Optional[str] = None
     measurement_count: int = 0

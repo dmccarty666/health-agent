@@ -10,11 +10,25 @@ Start with:
 
 from __future__ import annotations
 
-from fastapi import FastAPI, HTTPException, Query
+import hashlib
+import hmac
+import os
+import time
+import uuid
+from typing import Optional
+
+from fastapi import FastAPI, Header, HTTPException, Query, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from db import get_cursor, get_user_id
-from models import HealthzOut, MeasurementOut, ProfileOut, TrendPoint
+from models import (
+    HealthzOut,
+    IngestMeasurementIn,
+    IngestOut,
+    MeasurementOut,
+    ProfileOut,
+    TrendPoint,
+)
 
 # ── All valid measurement metric column names ──────────────────────────
 ALL_METRIC_COLUMNS = frozenset(
@@ -303,3 +317,109 @@ def measurement_trends(
         )
 
     return result
+
+
+# ───────────────────────────────────────────────────────────────────────────
+# INGEST — POST /api/ingest/measurement
+#
+# Receives body composition records from local data sources (the Pi BLE
+# listener, manual entry, etc.). HMAC-authenticated so random LAN clients
+# can't spam the database.
+#
+# Auth scheme:
+#   Headers:
+#     X-Scale-Timestamp:  Unix epoch seconds, must be within ±300s of now
+#     X-Scale-Signature:  hex(HMAC-SHA256(secret, timestamp + "." + raw_body))
+#   Secret: SCALE_INGEST_SECRET env var, or hardcoded default for local dev.
+#   Replay protection: timestamp must be recent.
+# ───────────────────────────────────────────────────────────────────────────
+
+INGEST_SECRET = os.environ.get("SCALE_INGEST_SECRET", "dev-secret-change-me")
+INGEST_TIMESTAMP_TOLERANCE = 300  # ±5 minutes
+
+
+def _verify_ingest_signature(secret: str, timestamp: str, signature: str, raw_body: bytes) -> bool:
+    """Constant-time HMAC verification. Returns True if signature is valid."""
+    if not timestamp or not signature:
+        return False
+    try:
+        ts = int(timestamp)
+    except ValueError:
+        return False
+    # Replay protection: timestamp must be within tolerance of now
+    if abs(time.time() - ts) > INGEST_TIMESTAMP_TOLERANCE:
+        return False
+    expected = hmac.new(
+        secret.encode("utf-8"),
+        f"{timestamp}.".encode("utf-8") + raw_body,
+        hashlib.sha256,
+    ).hexdigest()
+    return hmac.compare_digest(expected, signature)
+
+
+@app.post("/api/ingest/measurement", response_model=IngestOut)
+async def ingest_measurement(
+    payload: IngestMeasurementIn,
+    request: Request,
+    x_scale_timestamp: Optional[str] = Header(None, alias="X-Scale-Timestamp"),
+    x_scale_signature: Optional[str] = Header(None, alias="X-Scale-Signature"),
+) -> IngestOut:
+    """Accept a body composition record from a local authenticated source.
+
+    The Pi BLE listener will POST one of these after each successful
+    weigh-in. We UPSERT by (user_id, measured_at) so re-runs are idempotent.
+    """
+    # HMAC verification — read raw body BEFORE Pydantic consumes it so the
+    # signature covers the exact bytes the client sent.
+    raw_body = await request.body()
+    if not _verify_ingest_signature(INGEST_SECRET, x_scale_timestamp or "", x_scale_signature or "", raw_body):
+        raise HTTPException(status_code=401, detail="Invalid or missing signature")
+
+    uid = get_user_id()
+    if not uid:
+        raise HTTPException(status_code=503, detail="No user configured in database")
+
+    # Build UPSERT — same pattern as fixed sync_hume.py
+    payload_dict = payload.model_dump()
+    columns = ["id", "user_id", "measured_at", "device_name", "note"] + sorted(ALL_METRIC_COLUMNS)
+    update_cols = [c for c in columns if c not in ("id", "user_id", "measured_at")]
+    update_sql = ", ".join(f"{c} = EXCLUDED.{c}" for c in update_cols)
+
+    # Order the values to match `columns` exactly
+    row = (
+        str(uuid.uuid4()),
+        uid,
+        payload_dict["measured_at"],
+        payload_dict.get("device_name"),
+        payload_dict.get("note"),
+    ) + tuple(payload_dict.get(col) for col in sorted(ALL_METRIC_COLUMNS))
+
+    with get_cursor() as cur:
+        # First check if this (user_id, measured_at) exists so we can report
+        # inserted vs updated in the response.
+        cur.execute(
+            "SELECT 1 FROM measurements WHERE user_id = %s AND measured_at = %s",
+            (uid, payload_dict["measured_at"]),
+        )
+        existed = cur.fetchone() is not None
+
+        cur.execute(
+            f"""
+            INSERT INTO measurements ({', '.join(columns)})
+            VALUES ({', '.join(['%s'] * len(columns))})
+            ON CONFLICT (user_id, measured_at) DO UPDATE
+            SET {update_sql}
+            """,
+            row,
+        )
+        cur.execute("SELECT COUNT(*) AS n FROM measurements WHERE user_id = %s", (uid,))
+        count_row = cur.fetchone()
+        total = count_row["n"] if count_row else 0
+
+    return IngestOut(
+        status="ok",
+        action="updated" if existed else "inserted",
+        measured_at=payload_dict["measured_at"],
+        device_name=payload_dict.get("device_name"),
+        measurement_count=total,
+    )
