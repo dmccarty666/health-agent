@@ -255,6 +255,73 @@
   }
 
   /* ================================================================
+   * DATA FRESHNESS BADGE
+   *
+   * Polls the latest Hume measurement and shows a topbar badge:
+   *   - green  (< 7d)   → "Live"
+   *   - amber  (7-30d)  → "Xd ago"
+   *   - red    (> 30d)  → "Xd ago"
+   *   - gray   (no data / error) → "no data"
+   * ================================================================ */
+  var FRESHNESS_REFRESH_MS = 5 * 60 * 1000; // refresh every 5 min
+  var FRESHNESS_WARN_DAYS = 7;
+  var FRESHNESS_BAD_DAYS = 30;
+
+  function freshnessClass(daysOld) {
+    if (daysOld == null) return 'badge-purple';     // unknown / no data
+    if (daysOld < FRESHNESS_WARN_DAYS) return 'badge-green';
+    if (daysOld < FRESHNESS_BAD_DAYS) return 'badge-amber';
+    return 'badge-red';
+  }
+
+  function formatAge(daysOld) {
+    if (daysOld == null) return 'no data';
+    if (daysOld === 0) return 'Live';
+    if (daysOld === 1) return '1 day ago';
+    return daysOld + ' days ago';
+  }
+
+  function setFreshnessBadge(label, klass, tooltip) {
+    var badge = document.getElementById('data-freshness-badge');
+    var labelEl = document.getElementById('data-freshness-label');
+    if (!badge || !labelEl) return;
+    // strip any previous color class
+    badge.classList.remove('badge-purple', 'badge-green', 'badge-amber', 'badge-red');
+    badge.classList.add(klass);
+    labelEl.textContent = label;
+    if (tooltip != null) badge.setAttribute('title', tooltip);
+  }
+
+  function updateDataFreshness() {
+    apiGet('/api/health/measurements/latest')
+      .then(function (data) {
+        if (!data || !data.measured_at) {
+          setFreshnessBadge('no data', 'badge-purple', 'No Hume measurements found');
+          return;
+        }
+        var measured = new Date(data.measured_at);
+        if (isNaN(measured.getTime())) {
+          setFreshnessBadge('no data', 'badge-purple', 'Invalid measured_at: ' + data.measured_at);
+          return;
+        }
+        var now = new Date();
+        var days = Math.floor((now - measured) / 86400000);
+        var fullDate = measured.toLocaleDateString(undefined, {
+          year: 'numeric', month: 'short', day: 'numeric'
+        });
+        setFreshnessBadge(
+          formatAge(days),
+          freshnessClass(days),
+          'Last Hume weigh-in: ' + fullDate + ' (' + days + ' day' + (days === 1 ? '' : 's') + ' ago)'
+        );
+      })
+      .catch(function (err) {
+        console.warn('[health-agent] freshness check failed:', err);
+        setFreshnessBadge('offline', 'badge-purple', 'API unreachable: ' + (err.message || err));
+      });
+  }
+
+  /* ================================================================
    * TOAST / ERROR DISPLAY
    * ================================================================ */
 
@@ -471,6 +538,10 @@
 
     /* 11. Refresh Lucide icons */
     refreshLucide();
+
+    /* 12. Data freshness badge (Hume last sync) */
+    updateDataFreshness();
+    setInterval(updateDataFreshness, FRESHNESS_REFRESH_MS);
   }
 
   /* Run on DOMContentLoaded */
