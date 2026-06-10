@@ -1625,17 +1625,20 @@ body {
 }
 
 /* ================================================================
- * BODY ANATOMICAL — 12-Region View
+ * BODY ANATOMICAL — 13-Region View (single-SVG renderer)
  *
- * Positioned SVG regions forming a complete human figure.
+ * One unified SVG contains all 13 body regions as <g> groups, each
+ * positioned with transform="translate(x, y)". The viewBox handles
+ * alignment by construction — impossible for parts to drift.
+ *
  * Paths adapted from volcanioo/Human-Body-Rendering-HTML.
  * ================================================================ */
 
 .body-anatomical-container {
   position: relative;
   width: 100%;
-  max-width: 240px;
-  height: 510px;
+  max-width: 320px;
+  aspect-ratio: 320 / 510;     /* matches SVG viewBox -5 -6 320 510 */
   margin: 1.5rem auto 1rem;
   display: block;
   background: linear-gradient(180deg,
@@ -1646,52 +1649,30 @@ body {
   overflow: visible;
 }
 
-/* Soft drop shadow under the figure for depth */
-.body-anatomical-container::before {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  height: 12px;
-  background: radial-gradient(ellipse at center,
-    hsl(var(--foreground) / 0.15) 0%,
-    transparent 70%);
-  filter: blur(4px);
-  z-index: 0;
+/* The unified SVG — fills the container, no separate absolute positioning */
+#body-anatomical-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
+/* Each region — a nested <svg> element. Hover/click handled by JS. */
 .anatomical-region {
-  transition: transform 0.15s ease, filter 0.15s ease;
+  transition: filter 0.15s ease;
 }
 
 .anatomical-region:hover {
-  transform: scale(1.05);
   filter: drop-shadow(0 2px 4px hsl(var(--primary) / 0.4));
-  z-index: 100 !important;
 }
 
 .anatomical-region.persistent-tooltip {
-  transform: scale(1.08);
   filter: drop-shadow(0 3px 6px hsl(var(--primary) / 0.5));
-  z-index: 100 !important;
 }
 
-.anatomical-region svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  pointer-events: none;  /* Let parent div receive events */
-}
-
-.anatomical-region {
-  pointer-events: auto;
-}
-
-.anatomical-region svg path {
+/* The path inside each region */
+.anatomical-path {
   transition: fill 0.15s ease, fill-opacity 0.15s ease;
-  pointer-events: auto;  /* Path can be hovered/clicked */
+  cursor: pointer;
 }
 
 /* Body anatomy tooltip — fixed to viewport positioning */
@@ -1745,8 +1726,7 @@ body {
 /* Responsive: shrink on smaller screens */
 @media (max-width: 640px) {
   .body-anatomical-container {
-    max-width: 200px;
-    height: 425px;
+    max-width: 260px;
   }
 }
 
