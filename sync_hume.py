@@ -228,20 +228,26 @@ def insert_measurements(measurements):
     conn.autocommit = True
     cur = conn.cursor()
 
-    # Get existing measurement IDs
-    cur.execute("SELECT id FROM measurements WHERE user_id = %s", (USER_ID,))
-    existing_ids = {row[0] for row in cur.fetchall()}
+    # Get existing (user_id, measured_at) pairs — used to detect genuinely
+    # new measurements before we attempt the bulk upsert. We can't dedup on
+    # `id` because we generate fresh UUIDs every run; the real uniqueness
+    # invariant is (user_id, measured_at), enforced by the database.
+    cur.execute(
+        "SELECT measured_at FROM measurements WHERE user_id = %s",
+        (USER_ID,),
+    )
+    existing_ts = {row[0] for row in cur.fetchall()}
 
     new_measurements = []
     for m in measurements:
         if m is None:
             continue
-        mid = str(uuid.uuid4())
-        if mid in existing_ids:
-            continue  # Skip duplicates
-
+        # We always generate a fresh id, but only count it as "new" if
+        # the (user_id, measured_at) pair hasn't been seen. This lets the
+        # upsert's ON CONFLICT clause do the right thing for re-runs:
+        # updates the row's metric columns while preserving the original id.
         new_measurements.append((
-            mid,
+            str(uuid.uuid4()),
             USER_ID,
             m["measured_at"],
             m.get("device_name"),
@@ -309,19 +315,30 @@ def insert_measurements(measurements):
         "seg_left_leg_muscle_kg", "seg_left_leg_fat_pct", "seg_left_leg_fat_kg",
     ]
 
+    # The unique constraint is on (user_id, measured_at), NOT on `id`.
+    # We use DO UPDATE so re-runs update the metric columns in place and
+    # preserve the original row's `id` (not in the SET clause = kept from DB).
+    update_cols = [c for c in columns if c not in ("id", "user_id", "measured_at")]
+    update_sql = ", ".join(f"{c} = EXCLUDED.{c}" for c in update_cols)
+
     execute_values(
         cur,
         f"""INSERT INTO measurements ({', '.join(columns)})
              VALUES %s
-             ON CONFLICT (id) DO NOTHING""",
+             ON CONFLICT (user_id, measured_at) DO UPDATE
+             SET {update_sql}""",
         new_measurements,
     )
 
-    inserted = cur.rowcount
-    print(f"Inserted {inserted} new measurements.")
+    # rowcount semantics with execute_values + ON CONFLICT DO UPDATE are
+    # unreliable across psycopg2 versions, so we don't try to distinguish
+    # inserted vs updated. Re-querying total is cheap.
+    cur.execute("SELECT COUNT(*) FROM measurements WHERE user_id = %s", (USER_ID,))
+    total_after = cur.fetchone()[0]
+    print(f"Upsert complete. Total measurements for user: {total_after}.")
     cur.close()
     conn.close()
-    return inserted
+    return total_after
 
 
 def main():
@@ -344,8 +361,8 @@ def main():
               f"BMI={latest['bmi']}, body_fat={latest['body_fat_pct']}%")
 
     print("Inserting into PostgreSQL...")
-    inserted = insert_measurements(transformed)
-    print(f"Done. {inserted} new records inserted.")
+    total = insert_measurements(transformed)
+    print(f"Done. Database now holds {total} measurements for this user.")
 
 
 if __name__ == "__main__":
