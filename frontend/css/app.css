@@ -1634,8 +1634,8 @@ body {
 .body-anatomical-container {
   position: relative;
   width: 100%;
-  max-width: 280px;
-  height: 460px;
+  max-width: 240px;
+  height: 510px;
   margin: 1.5rem auto 1rem;
   display: block;
   background: linear-gradient(180deg,
@@ -1643,6 +1643,7 @@ body {
     hsl(var(--muted) / 0.15) 50%,
     hsl(var(--background) / 0) 100%);
   border-radius: 12px;
+  overflow: visible;
 }
 
 /* Soft drop shadow under the figure for depth */
@@ -1681,15 +1682,21 @@ body {
   display: block;
   width: 100%;
   height: auto;
+  pointer-events: none;  /* Let parent div receive events */
+}
+
+.anatomical-region {
+  pointer-events: auto;
 }
 
 .anatomical-region svg path {
   transition: fill 0.15s ease, fill-opacity 0.15s ease;
+  pointer-events: auto;  /* Path can be hovered/clicked */
 }
 
-/* Body anatomy tooltip */
+/* Body anatomy tooltip — fixed to viewport positioning */
 .body-anatomical-tooltip {
-  position: absolute;
+  position: fixed;
   background: hsl(var(--popover));
   color: hsl(var(--popover-foreground));
   border: 1px solid hsl(var(--border));
@@ -1699,7 +1706,7 @@ body {
   font-size: 11px;
   box-shadow: 0 4px 12px hsl(var(--foreground) / 0.15);
   pointer-events: none;
-  z-index: 1000;
+  z-index: 9999;
   min-width: 100px;
   text-align: center;
   white-space: nowrap;
@@ -1738,8 +1745,8 @@ body {
 /* Responsive: shrink on smaller screens */
 @media (max-width: 640px) {
   .body-anatomical-container {
-    max-width: 220px;
-    height: 360px;
+    max-width: 200px;
+    height: 425px;
   }
 }
 
