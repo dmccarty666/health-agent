@@ -218,6 +218,12 @@
     }
     html += '</div>';
 
+    /* View switch: 5-region (current) vs 12-region anatomical */
+    html += '<div class="body-map-view-modes">';
+    html += '<span class="body-map-view-current">5-Region</span>';
+    html += '<button class="body-map-view-btn" data-view="anatomical">12-Region Anatomical →</button>';
+    html += '</div>';
+
     /* SVG body map */
     html += '<div class="body-map-svg-container">';
 
@@ -360,6 +366,19 @@
         if (mode && mode !== currentViewMode) {
           currentViewMode = mode;
           render();
+        }
+      });
+    }
+
+    /* View switch button → hand off to anatomical module */
+    var viewBtn = document.querySelector('.body-map-view-btn');
+    if (viewBtn) {
+      viewBtn.addEventListener('click', function () {
+        /* Signal anatomical view to take over */
+        window.HealthAgent = window.HealthAgent || {};
+        window.HealthAgent.bodyMapView = 'anatomical';
+        if (window.HealthAgent.bodyAnatomical) {
+          window.HealthAgent.bodyAnatomical.init();
         }
       });
     }
