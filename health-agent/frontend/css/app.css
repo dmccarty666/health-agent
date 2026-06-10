@@ -1574,3 +1574,172 @@ body {
 .chart-card-animate + .chart-card-animate {
   margin-top: 1.25rem;
 }
+
+/* ================================================================
+ * BODY MAP — View Mode Switcher
+ *
+ * 5-Region ↔ 12-Region Anatomical toggle bar
+ * ================================================================ */
+
+.body-map-view-modes {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 0.5rem 0 0.75rem;
+  font-size: 11px;
+  font-family: 'DM Sans', sans-serif;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+}
+
+.body-map-view-current {
+  color: hsl(var(--muted-foreground));
+  font-weight: 500;
+  opacity: 0.7;
+}
+
+.body-map-view-btn {
+  background: hsl(var(--primary) / 0.12);
+  color: hsl(var(--primary));
+  border: 1px solid hsl(var(--primary) / 0.3);
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.body-map-view-btn:hover {
+  background: hsl(var(--primary) / 0.2);
+  border-color: hsl(var(--primary) / 0.5);
+  transform: translateY(-1px);
+}
+
+.body-map-view-btn:active {
+  transform: translateY(0);
+}
+
+/* ================================================================
+ * BODY ANATOMICAL — 12-Region View
+ *
+ * Positioned SVG regions forming a complete human figure.
+ * Paths adapted from volcanioo/Human-Body-Rendering-HTML.
+ * ================================================================ */
+
+.body-anatomical-container {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  height: 460px;
+  margin: 1.5rem auto 1rem;
+  display: block;
+  background: linear-gradient(180deg,
+    hsl(var(--background) / 0) 0%,
+    hsl(var(--muted) / 0.15) 50%,
+    hsl(var(--background) / 0) 100%);
+  border-radius: 12px;
+}
+
+/* Soft drop shadow under the figure for depth */
+.body-anatomical-container::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  height: 12px;
+  background: radial-gradient(ellipse at center,
+    hsl(var(--foreground) / 0.15) 0%,
+    transparent 70%);
+  filter: blur(4px);
+  z-index: 0;
+}
+
+.anatomical-region {
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.anatomical-region:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 2px 4px hsl(var(--primary) / 0.4));
+  z-index: 100 !important;
+}
+
+.anatomical-region.persistent-tooltip {
+  transform: scale(1.08);
+  filter: drop-shadow(0 3px 6px hsl(var(--primary) / 0.5));
+  z-index: 100 !important;
+}
+
+.anatomical-region svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.anatomical-region svg path {
+  transition: fill 0.15s ease, fill-opacity 0.15s ease;
+}
+
+/* Body anatomy tooltip */
+.body-anatomical-tooltip {
+  position: absolute;
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  box-shadow: 0 4px 12px hsl(var(--foreground) / 0.15);
+  pointer-events: none;
+  z-index: 1000;
+  min-width: 100px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.tooltip-label {
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 2px;
+}
+
+.tooltip-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+  margin: 2px 0;
+}
+
+.tooltip-rating {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.tooltip-rating-good    { color: #22c55e; }
+.tooltip-rating-normal  { color: #38bdf8; }
+.tooltip-rating-warning { color: #f59e0b; }
+.tooltip-rating-concern { color: #ef4444; }
+
+/* Responsive: shrink on smaller screens */
+@media (max-width: 640px) {
+  .body-anatomical-container {
+    max-width: 220px;
+    height: 360px;
+  }
+}
+
