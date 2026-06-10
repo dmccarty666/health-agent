@@ -214,14 +214,35 @@ def measurement_trends(
         default="weight_kg,bmi",
         description="Comma-separated metric column names",
     ),
+    days: int | None = Query(
+        default=None,
+        ge=1,
+        le=730,
+        description="Restrict to last N days (optional). Mutually exclusive with `since`.",
+    ),
+    since: str | None = Query(
+        default=None,
+        description="ISO date (YYYY-MM-DD) — return rows on/after this date. Optional.",
+    ),
     limit: int = Query(default=90, ge=1, le=366),
 ) -> list[TrendPoint]:
     """Return selected metrics over time, oldest first.
 
     Query params:
         metrics: comma-separated column names (e.g. "weight_kg,bmi,body_fat_pct")
+        days:    optional — restrict to last N days
+        since:   optional — ISO date (YYYY-MM-DD) for custom lower bound
         limit:   max number of data points (default 90)
+
+    The query uses the standard "most recent N, chronologically ordered" subquery
+    pattern. Without this, ``ORDER BY ASC LIMIT N`` returns the OLDEST N rows.
     """
+    if days is not None and since is not None:
+        raise HTTPException(
+            status_code=400,
+            detail="`days` and `since` are mutually exclusive — pick one",
+        )
+
     uid = get_user_id()
 
     # Parse and validate requested metrics
@@ -239,16 +260,32 @@ def measurement_trends(
     # Build the column list safely — all columns are in our allowlist
     columns_sql = ", ".join(requested)
 
+    # Build optional date filter and params
+    if days is not None:
+        date_filter = "AND measured_at >= NOW() - make_interval(days => %s)"
+        date_params: tuple = (days,)
+    elif since is not None:
+        date_filter = "AND measured_at >= %s"
+        date_params = (since,)
+    else:
+        date_filter = ""
+        date_params = ()
+
     with get_cursor() as cur:
         cur.execute(
             f"""
             SELECT measured_at, {columns_sql}
-            FROM measurements
-            WHERE user_id = %s
+            FROM (
+                SELECT measured_at, {columns_sql}
+                FROM measurements
+                WHERE user_id = %s
+                  {date_filter}
+                ORDER BY measured_at DESC
+                LIMIT %s
+            ) recent
             ORDER BY measured_at ASC
-            LIMIT %s
             """,
-            (uid, limit),
+            (uid, *date_params, limit),
         )
         rows = cur.fetchall()
 
