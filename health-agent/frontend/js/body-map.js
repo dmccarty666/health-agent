@@ -221,7 +221,7 @@
     /* View switch: 5-region (current) vs 12-region anatomical */
     html += '<div class="body-map-view-modes">';
     html += '<span class="body-map-view-current">5-Region</span>';
-    html += '<button class="body-map-view-btn" data-view="anatomical">12-Region Anatomical →</button>';
+    html += '<button class="body-map-view-btn" data-view="anatomical">8-Region Anatomical →</button>';
     html += '</div>';
 
     /* SVG body map */

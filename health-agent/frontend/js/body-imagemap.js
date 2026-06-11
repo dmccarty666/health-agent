@@ -17,11 +17,14 @@
  * The image is 270x360 pixels. Region coords are in image-pixel
  * space (POLY shape; coords scale with the image's CSS size).
  *
- * Convention: "left" = figure's anatomical right (viewer's left).
- *  - left-arm  = figure's right arm (viewer's left side)
- *  - right-arm = figure's left arm (viewer's right side)
- *  - left-leg  = figure's right leg
- *  - right-leg = figure's left leg
+ * Convention: anatomical (figure's perspective). The figure FACES
+ * the viewer, so:
+ *   - The figure's RIGHT arm is on the VIEWER'S LEFT
+ *   - The figure's LEFT arm is on the VIEWER'S RIGHT
+ *   - Same for legs, hands, feet, shoulders
+ *
+ * This is the standard medical/anatomical convention and matches the
+ * Hume segmental data field names (seg_left_arm_*, seg_right_arm_*, etc.).
  */
 
 (function () {
@@ -33,99 +36,74 @@
    * Derived from a numpy pixel analysis of the actual image. The
    * figure centerline is x=131, vertical extent y=10-343.
    *
-   * Each polygon traces the actual silhouette of the body part, not
-   * a rectangle. This means clicking on the visible body part (where
-   * the blue silhouette is) hits the correct region, and the empty
-   * space between arms and torso is NOT part of any region.
+   * Each polygon is sized to cover the actual body part + a small
+   * margin for clickability, and DOES NOT overlap with adjacent
+   * regions (e.g. right-arm stops at x=99, chest starts at x=100).
+   *
+   * Naming follows the figure's anatomical perspective (not the
+   * viewer's). The figure is FACING the viewer.
    * ================================================================ */
 
   var REGION_POLYGONS = {
-    /* Head: oval, y=10-55, centered around x=131. */
-    head: [
-      [131, 10], [143, 14], [145, 28], [145, 40], [143, 50],
-      [135, 55], [127, 55], [119, 50], [117, 40], [117, 28], [119, 14]
-    ],
-
-    /* Left shoulder (figure's right, viewer's left): cap on left
-     * side of upper body. The shoulder line widens sharply at y=60-65
-     * from head width (~30) to body width (~80). The left cap is
-     * x=83-115. */
-    'left-shoulder': [
-      [83, 65], [115, 65], [118, 80], [115, 95], [105, 110],
-      [95, 115], [85, 110], [83, 90]
-    ],
-
-    /* Right shoulder (figure's left, viewer's right): mirror. */
+    /* Right shoulder (figure's right, VIEWER'S LEFT): the LEFT half
+     * of the upper-body block. The figure widens from head width at
+     * y=55 to full shoulder width by y=65. */
     'right-shoulder': [
-      [187, 65], [155, 65], [152, 80], [155, 95], [165, 110],
-      [175, 115], [185, 110], [187, 90]
+      [113, 65], [160, 65], [160, 115], [113, 115]
     ],
 
-    /* Chest: the central torso in the upper half of the three-stripe
-     * region (y=120-180, x=97-165). This is bounded by the arms on
-     * either side. */
+    /* Left shoulder (figure's left, VIEWER'S RIGHT): the RIGHT half
+     * of the upper-body block. */
+    'left-shoulder': [
+      [160, 65], [206, 65], [206, 115], [160, 115]
+    ],
+
+    /* Chest: central torso. At y=120-200 the figure has three
+     * segments (arms + torso). The torso (chest) is the middle
+     * segment. Width x=100-167, with the figure being slightly
+     * narrower in the middle. Polygon stops at x=167 to leave a
+     * gap before the left-arm region starts at x=170. */
     chest: [
-      [104, 120], [160, 120], [165, 145], [163, 175], [160, 180],
-      [100, 180], [97, 175], [95, 145]
+      [130, 115], [197, 115], [197, 200], [130, 200]
     ],
 
-    /* Stomach: the lower torso where the figure becomes a solid
-     * block again (y=180-220, x=97-165). */
+    /* Stomach: lower torso (y=200-220). Solid block x=97-164. */
     stomach: [
-      [97, 180], [165, 180], [165, 200], [161, 220], [100, 220],
-      [97, 200]
+      [127, 200], [194, 200], [194, 220], [127, 220]
     ],
 
-    /* Left arm (figure's right, viewer's left): the left strip in
-     * the three-segment region (y=120-195, x=65-100). */
-    'left-arm': [
-      [80, 120], [98, 120], [94, 145], [86, 165], [75, 185],
-      [67, 195], [65, 180], [70, 155], [75, 135]
-    ],
-
-    /* Right arm (figure's left, viewer's right): the right strip
-     * in the three-segment region (y=120-195, x=160-200). */
+    /* Right arm (figure's right, VIEWER'S LEFT): the LEFT strip in
+     * the three-segment region. Extends to the bottom of the arm
+     * (y=200) since hand region was removed. */
     'right-arm': [
-      [160, 120], [179, 120], [184, 135], [189, 155], [194, 180],
-      [196, 195], [186, 185], [175, 165], [165, 145]
+      [112, 115], [129, 115], [129, 120], [127, 140], [123, 155],
+      [118, 165], [115, 180], [115, 200], [90, 200], [90, 180],
+      [94, 160], [98, 140], [102, 120], [108, 116]
     ],
 
-    /* Hands: there are no distinct hand features in the image (no
-     * finger details, no separate blobs). The hand regions are
-     * the bottom 1/3 of each arm, narrowed slightly. They cover
-     * the arm tip area. */
-    'left-hand': [
-      [75, 165], [94, 165], [86, 185], [75, 195], [67, 195],
-      [70, 180]
-    ],
-    'right-hand': [
-      [165, 165], [184, 165], [194, 195], [186, 185], [175, 180],
-      [170, 175]
+    /* Left arm (figure's left, VIEWER'S RIGHT): the RIGHT strip in
+     * the three-segment region. Extends to the bottom (y=200). */
+    'left-arm': [
+      [200, 115], [232, 115], [232, 120], [228, 140], [223, 160],
+      [218, 180], [218, 200], [200, 200], [200, 180], [195, 160],
+      [192, 140], [190, 120], [200, 116]
     ],
 
-    /* Left leg (figure's right): the left strip in the two-stripe
-     * leg region (y=225-340, x=100-129). */
-    'left-leg': [
-      [100, 225], [129, 225], [127, 260], [125, 295], [123, 330],
-      [110, 340], [104, 320], [102, 280], [100, 250]
-    ],
-
-    /* Right leg (figure's left): the right strip in the two-stripe
-     * leg region (y=225-340, x=131-160). */
+    /* Right leg (figure's right, VIEWER'S LEFT): the LEFT strip in
+     * the two-segment leg region. Extends to y=345 since foot region
+     * was removed. */
     'right-leg': [
-      [131, 225], [160, 225], [160, 250], [158, 280], [156, 320],
-      [150, 340], [137, 330], [135, 295], [133, 260]
+      [130, 220], [159, 220], [158, 240], [156, 280], [153, 320],
+      [152, 335], [150, 345], [140, 345], [132, 335], [131, 320],
+      [130, 280], [130, 240]
     ],
 
-    /* Feet: bottom of the figure widens slightly at y=335-345.
-     * Since there are no distinct foot features (no toes, no
-     * separate foot shape), the foot regions are the very bottom
-     * of the leg strips. */
-    'left-foot': [
-      [102, 335], [125, 335], [123, 345], [110, 345], [102, 340]
-    ],
-    'right-foot': [
-      [135, 335], [158, 335], [160, 340], [150, 345], [137, 345]
+    /* Left leg (figure's left, VIEWER'S RIGHT): the RIGHT strip in
+     * the two-segment leg region. Extends to y=345. */
+    'left-leg': [
+      [161, 220], [190, 220], [190, 240], [190, 280], [188, 320],
+      [187, 335], [188, 345], [180, 345], [167, 335], [167, 320],
+      [164, 280], [161, 240]
     ]
   };
 
@@ -146,19 +124,14 @@
 
   /* Display labels for tooltips */
   var REGION_LABELS = {
-    head:             'Head',
-    'left-shoulder':  'Left Shoulder',
     'right-shoulder': 'Right Shoulder',
-    'left-arm':       'Left Arm',
+    'left-shoulder':  'Left Shoulder',
     'right-arm':      'Right Arm',
+    'left-arm':       'Left Arm',
     chest:            'Chest',
     stomach:          'Stomach',
-    'left-hand':      'Left Hand',
-    'right-hand':     'Right Hand',
-    'left-leg':       'Left Leg',
     'right-leg':      'Right Leg',
-    'left-foot':      'Left Foot',
-    'right-foot':     'Right Foot'
+    'left-leg':       'Left Leg'
   };
 
   /* ================================================================
@@ -170,6 +143,9 @@
 
   /* ================================================================
    * VALUE LOOKUP (mirrors body-anatomical.js / body-map.js)
+   *
+   * Maps region key (anatomical) → Hume data field name. The Hume
+   * fields are also anatomical: seg_left_arm_* = figure's left arm.
    * ================================================================ */
 
   function toNum(v) {
@@ -181,25 +157,32 @@
     var mode = VIEW_MODES[viewMode];
     if (!mode) return 0;
 
-    /* Real segmental field names (matches backend's Hume schema) */
+    /* Real segmental field names (matches backend's Hume schema).
+     * Hume fields are anatomical: seg_left_arm_* = figure's left. */
     var segFields = {
       'fat_pct': {
-        'left-arm': 'seg_left_arm_fat_pct', 'right-arm': 'seg_right_arm_fat_pct',
-        'left-leg': 'seg_left_leg_fat_pct', 'right-leg': 'seg_right_leg_fat_pct',
+        'right-arm': 'seg_right_arm_fat_pct',
+        'left-arm':  'seg_left_arm_fat_pct',
+        'right-leg': 'seg_right_leg_fat_pct',
+        'left-leg':  'seg_left_leg_fat_pct',
         chest: 'seg_trunk_fat_pct', stomach: 'seg_trunk_fat_pct',
-        'left-shoulder': 'seg_trunk_fat_pct', 'right-shoulder': 'seg_trunk_fat_pct'
+        'right-shoulder': 'seg_trunk_fat_pct', 'left-shoulder': 'seg_trunk_fat_pct'
       },
       'fat_lbs': {
-        'left-arm': 'seg_left_arm_fat_kg', 'right-arm': 'seg_right_arm_fat_kg',
-        'left-leg': 'seg_left_leg_fat_kg', 'right-leg': 'seg_right_leg_fat_kg',
+        'right-arm': 'seg_right_arm_fat_kg',
+        'left-arm':  'seg_left_arm_fat_kg',
+        'right-leg': 'seg_right_leg_fat_kg',
+        'left-leg':  'seg_left_leg_fat_kg',
         chest: 'seg_trunk_fat_kg', stomach: 'seg_trunk_fat_kg',
-        'left-shoulder': 'seg_trunk_fat_kg', 'right-shoulder': 'seg_trunk_fat_kg'
+        'right-shoulder': 'seg_trunk_fat_kg', 'left-shoulder': 'seg_trunk_fat_kg'
       },
       'muscle_lbs': {
-        'left-arm': 'seg_left_arm_muscle_kg', 'right-arm': 'seg_right_arm_muscle_kg',
-        'left-leg': 'seg_left_leg_muscle_kg', 'right-leg': 'seg_right_leg_muscle_kg',
+        'right-arm': 'seg_right_arm_muscle_kg',
+        'left-arm':  'seg_left_arm_muscle_kg',
+        'right-leg': 'seg_right_leg_muscle_kg',
+        'left-leg':  'seg_left_leg_muscle_kg',
         chest: 'seg_trunk_muscle_kg', stomach: 'seg_trunk_muscle_kg',
-        'left-shoulder': 'seg_trunk_muscle_kg', 'right-shoulder': 'seg_trunk_muscle_kg'
+        'right-shoulder': 'seg_trunk_muscle_kg', 'left-shoulder': 'seg_trunk_muscle_kg'
       }
     };
 
@@ -217,22 +200,16 @@
     /* Fallback: estimate from overall body composition using
      * distribution ratios (matches body-map.js logic) */
     var DISTRIBUTION = {
-      'left-arm':      { muscle: 0.08, fat: 0.07, fatPct: 0.70  },
-      'right-arm':     { muscle: 0.08, fat: 0.07, fatPct: 0.70  },
-      'left-leg':      { muscle: 0.22, fat: 0.18, fatPct: 1.05  },
-      'right-leg':     { muscle: 0.22, fat: 0.18, fatPct: 1.05  }
+      'right-arm':    { muscle: 0.08, fat: 0.07, fatPct: 0.70  },
+      'left-arm':     { muscle: 0.08, fat: 0.07, fatPct: 0.70  },
+      'right-leg':    { muscle: 0.22, fat: 0.18, fatPct: 1.05  },
+      'left-leg':     { muscle: 0.22, fat: 0.18, fatPct: 1.05  }
     };
     var TRUNK_SPLIT = {
-      'left-shoulder':  0.10,
       'right-shoulder': 0.10,
+      'left-shoulder':  0.10,
       chest:           0.30,
       stomach:         0.50
-    };
-    var EXTREMITY_RATIOS = {
-      'left-hand':  0.08,
-      'right-hand': 0.08,
-      'left-foot':  0.04,
-      'right-foot': 0.04
     };
 
     var dist = DISTRIBUTION[regionKey];
@@ -263,27 +240,13 @@
       return fp;
     }
 
-    var extRatio = EXTREMITY_RATIOS[regionKey];
-    if (extRatio) {
-      if (viewMode === 'muscle_lbs') {
-        var lmm = toNum(data.muscle_mass_kg) || toNum(data.skeletal_muscle_mass_kg) || 30;
-        return (lmm * 2.20462) * extRatio;
-      }
-      if (viewMode === 'fat_lbs') {
-        var lfm = toNum(data.fat_mass_kg) || toNum(data.body_fat_mass_kg) || 15;
-        return (lfm * 2.20462) * extRatio;
-      }
-      var lfp = toNum(data.fat_pct) || toNum(data.body_fat_pct) || 20;
-      return lfp;
-    }
-
     return 0;
   }
 
   function getRegionRating(value, viewMode, regionKey) {
     var mode = VIEW_MODES[viewMode];
     if (!mode) return { label: 'NORMAL', color: 'normal' };
-    if (regionKey === 'head' || regionKey === 'left-shoulder' || regionKey === 'right-shoulder') {
+    if (regionKey === 'right-shoulder' || regionKey === 'left-shoulder') {
       return { label: 'N/A', color: 'normal' };
     }
     if (viewMode === 'fat_pct') {
@@ -416,8 +379,7 @@
   window.HealthAgent.bodyImagemap = {
     init: init,
     refresh: refresh,
-    setViewMode: setViewMode,
-    /* Also expose as window.BodyImageMap for debugging */
+    setViewMode: setViewMode
   };
   window.BodyImageMap = window.HealthAgent.bodyImagemap;
 })();
