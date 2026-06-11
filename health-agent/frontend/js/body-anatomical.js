@@ -317,6 +317,22 @@
     return 0;
   }
 
+  /* Order in which segment cards are displayed below the body
+   * image. 8 regions: 4 upper body (shoulders + chest + stomach)
+   * then 4 limbs. */
+  function getSegments() {
+    return [
+      { key: 'left-shoulder',  label: 'Left Shoulder' },
+      { key: 'right-shoulder', label: 'Right Shoulder' },
+      { key: 'chest',          label: 'Chest' },
+      { key: 'stomach',        label: 'Stomach' },
+      { key: 'left-arm',       label: 'Left Arm' },
+      { key: 'right-arm',      label: 'Right Arm' },
+      { key: 'left-leg',       label: 'Left Leg' },
+      { key: 'right-leg',      label: 'Right Leg' }
+    ];
+  }
+
   /* Rate a region by health threshold */
   function rateRegion(value, higherIsBetter) {
     if (value == null || isNaN(value) || value <= 0) return 'normal';
@@ -385,6 +401,29 @@
      * and shows color coding in the tooltip (not the image). */
     html += '<div class="body-anatomical-container" id="body-anatomical-container">';
     html += '<div id="body-imagemap-host"></div>';
+    html += '</div>';
+
+    /* Per-region segment cards — show each region's value plainly
+     * (label | value | rating) without requiring hover. Mirrors
+     * the layout the old 5-region view had (body-map.js v1).
+     * Restored in this PR after the segment cards feature was
+     * missing from the 8-region view. */
+    html += '<div class="body-map-segments">';
+    var segments = getSegments();
+    var segMode = VIEW_MODES[currentViewMode];
+    for (var s = 0; s < segments.length; s++) {
+      var si = segments[s];
+      var segVal = getRegionValue(measurementData, si.key, currentViewMode);
+      var segRating = rateRegion(segVal, segMode.higherIsBetter);
+      var segColor = HEALTH_COLORS[segRating];
+      var segDisplay = segVal > 0 ? fmtNum(segVal) : '--';
+      html += '<div class="body-map-segment-card" style="border-left:3px solid ' + segColor + '">';
+      html += '<span class="segment-label">' + si.label + '</span>';
+      html += '<span class="segment-value">' + segDisplay + segMode.unit + '</span>';
+      html += '<span class="segment-rating" style="color:' + segColor + '">' +
+              segRating.charAt(0).toUpperCase() + segRating.slice(1) + '</span>';
+      html += '</div>';
+    }
     html += '</div>';
 
     /* Tooltip element */
