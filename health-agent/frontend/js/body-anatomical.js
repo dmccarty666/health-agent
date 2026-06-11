@@ -748,11 +748,25 @@
       attributes: true,
       attributeFilter: ['class']
     });
-    /* Also try immediate init in case the subtab is already active
+    /* Try immediate init in case the subtab is already active
      * (e.g. user reloads page while on the body-map tab). */
     if (bodyMapSubtab.classList.contains('active') && !initialized) {
       init();
     }
+    /* Belt-and-suspenders: also poll the active state every 250ms
+     * for the first 5 seconds after page load. This catches the
+     * case where the MutationObserver misses the class change due
+     * to a cache, race condition, or browser quirk. */
+    var pollStart = Date.now();
+    var pollInterval = setInterval(function () {
+      if (initialized || Date.now() - pollStart > 5000) {
+        clearInterval(pollInterval);
+        return;
+      }
+      if (bodyMapSubtab.classList.contains('active')) {
+        init();
+      }
+    }, 250);
   }
 
   console.log('[body-anatomical] Module loaded (auto-init on subtab activation)');
