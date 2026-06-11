@@ -1634,11 +1634,13 @@ body {
  * Paths adapted from volcanioo/Human-Body-Rendering-HTML.
  * ================================================================ */
 
+/* Body image-map container. The image is 270x360 (3:4 portrait)
+ * and the container matches that aspect ratio. */
 .body-anatomical-container {
   position: relative;
   width: 100%;
-  max-width: 320px;
-  aspect-ratio: 320 / 510;     /* matches SVG viewBox -5 -6 320 510 */
+  max-width: 360px;
+  aspect-ratio: 270 / 360;
   margin: 1.5rem auto 1rem;
   display: block;
   background: linear-gradient(180deg,
@@ -1649,14 +1651,93 @@ body {
   overflow: visible;
 }
 
-/* The unified SVG — fills the container, no separate absolute positioning */
+/* The image itself — fills the container. */
+.body-imagemap-img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 8px;
+}
+
+/* Wrap div for the image+map (so the tooltip is positioned
+ * relative to the container, not the page). */
+.body-imagemap-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Image-map region hover effect: highlight the region outline.
+ * Note: HTML <area> elements can't be styled directly with CSS
+ * pseudo-classes in all browsers, so the visual hover is handled
+ * via a JS overlay. The <area> still receives mouse events. */
+
+/* Image-map tooltip — fixed to viewport positioning. */
+.body-imagemap-tooltip {
+  position: fixed;
+  background: hsl(var(--popover));
+  color: hsl(var(--popover-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  box-shadow: 0 4px 12px hsl(var(--foreground) / 0.15);
+  pointer-events: none;
+  z-index: 9999;
+  min-width: 120px;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.body-imagemap-tooltip-label {
+  font-weight: 600;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 4px;
+}
+
+.body-imagemap-tooltip-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.body-imagemap-tooltip-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.body-imagemap-tooltip-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: hsl(var(--foreground));
+}
+
+.body-imagemap-tooltip-rating {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  color: hsl(var(--muted-foreground));
+}
+
+/* The old SVG-based styles are kept below for backward compat
+ * (in case the old code is still reachable via debug). They are
+ * unused by the image-map view. */
 #body-anatomical-svg {
   width: 100%;
   height: 100%;
   display: block;
 }
 
-/* Each region — a nested <svg> element. Hover/click handled by JS. */
 .anatomical-region {
   transition: filter 0.15s ease;
 }
@@ -1669,13 +1750,11 @@ body {
   filter: drop-shadow(0 3px 6px hsl(var(--primary) / 0.5));
 }
 
-/* The path inside each region */
 .anatomical-path {
   transition: fill 0.15s ease, fill-opacity 0.15s ease;
   cursor: pointer;
 }
 
-/* Body anatomy tooltip — fixed to viewport positioning */
 .body-anatomical-tooltip {
   position: fixed;
   background: hsl(var(--popover));
@@ -1726,7 +1805,7 @@ body {
 /* Responsive: shrink on smaller screens */
 @media (max-width: 640px) {
   .body-anatomical-container {
-    max-width: 260px;
+    max-width: 280px;
   }
 }
 

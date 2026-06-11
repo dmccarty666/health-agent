@@ -92,37 +92,52 @@
     'right-foot':   { d: 'm 11.723492,2.35897 c -40.202667,20.558 -20.1013335,10.279 0,0 z m -5.9740005,5.989 0.663,18.415 1.546,6.435 4.6480005,0 1.328,-4.437 1.55,-0.222 -0.333,4.437 5.863,-1.778 1.55,-0.887 6.638,-1.442 0.222,-5.214 -6.418,-10.868 -4.426,-5.547 -10.8440005,-4.437 z', w: 30, h: 30 }
   };
 
-  /* Position table for each region. x = 103.5 + margin-left (so 103.5
-   * is the 50% centerline of the original 207px container), y = top.
-   * These come directly from the original volcanioo CSS — no guessing.
+  /* Target center coordinates for each region in the unified viewBox.
    *
-   * The x value positions the *nested SVG element's* left edge in the
-   * unified viewBox. The path itself is rendered at its natural
-   * coordinate extent inside the nested SVG (often smaller than the
-   * source viewBox). To align with the source CSS's intent (which
-   * used the full viewBox-width container), we adjust x to account
-   * for each path's actual bbox.
+   * The unified viewBox is "-5 -6 320 510", so the body is centered
+   * at x=103 (the 50% line of the original 207px container) and
+   * roughly y=0..470 vertically.
    *
-   * The buildAnatomicalSVG() function uses getBBox() to compute each
-   * path's actual width/height and adjusts the nested SVG's
-   * x/width/viewBox accordingly. The x values in this table are
-   * initial hints; the actual rendered position is computed at
-   * render time. */
-  var ANATOMICAL_POSITIONS = {
-    head:           { x: 75,    y: -6 },
-    'left-shoulder': { x: 50,    y: 69 },
-    'right-shoulder':{ x: 117,  y: 69 },
-    'left-arm':     { x: 25.5,  y: 112 },
-    'right-arm':    { x: 141.5, y: 112 },
-    chest:          { x: 60,    y: 88 },
-    stomach:        { x: 66,    y: 130 },
-    'left-leg':     { x: 57,    y: 205 },
-    'right-leg':    { x: 105,   y: 205 },
-    'left-hand':    { x: 1,     y: 224 },
-    'right-hand':   { x: 170,   y: 224 },
-    'left-foot':    { x: 68,    y: 455 },
-    'right-foot':   { x: 109,   y: 455 }
+   * The previous implementation translated source-CSS positions
+   * (pos.x, pos.y) using source-container-width math, but the source
+   * CSS positioned paths at the LEFT edge of wide containers
+   * (e.g. left-arm path is 40 wide inside a 156-wide container). The
+   * math centered everything on the body centerline instead of
+   * mirroring left/right parts around it.
+   *
+   * This table defines the intended visible center for each region.
+   * At render time, the path's actual bbox is measured and the
+   * nested SVG is positioned so the path's bbox center lands on
+   * TARGET_CENTERS[key]. */
+  var TARGET_CENTERS = {
+    /* Centered regions */
+    head:           { x: 103, y: 40  },
+    chest:          { x: 103, y: 100 },
+    stomach:        { x: 103, y: 200 },
+    /* Shoulders — just inside the arms */
+    'left-shoulder': { x: 78,  y: 100 },
+    'right-shoulder':{ x: 128, y: 100 },
+    /* Arms — outside the shoulders, mid-height of arm */
+    'left-arm':     { x: 48,  y: 170 },
+    'right-arm':    { x: 158, y: 170 },
+    /* Hands — overlap deeply into the arm bbox */
+    'left-hand':    { x: 30,  y: 215 },
+    'right-hand':   { x: 176, y: 215 },
+    /* Legs — bbox includes both "leg main body" sub-paths (upper
+     * half) and "foot shape" sub-paths (lower half). Position so
+     * the leg main body's visible bottom meets the actual foot's
+     * visible top. */
+    'left-leg':     { x: 82,  y: 270 },
+    'right-leg':    { x: 124, y: 270 },
+    /* Feet — overlap with the bottom of the leg's "leg main body"
+     * sub-paths so the leg's "foot shape" sub-paths are hidden
+     * behind the actual foot path. */
+    'left-foot':    { x: 82,  y: 410 },
+    'right-foot':   { x: 124, y: 410 }
   };
+
+  /* Source viewBox dimensions for each path. Used to create a
+   * temporary path to compute getBBox() at render time. */
 
   /* Original CSS viewBox dimensions for each path. Used to create a
    * temporary path to compute getBBox() at render time. */
@@ -366,9 +381,14 @@
     html += '<div class="legend-item"><span class="legend-swatch" style="background:' + HEALTH_COLORS.concern + '"></span> Concern</div>';
     html += '</div>';
 
-    /* Anatomical SVG body — single SVG containing all 13 regions */
+    /* Image-map body — delegates to body-imagemap.js.
+     * Replaces the old SVG-path approach (PR #4-#6) which had
+     * alignment issues because the source paths have empty space
+     * inside their bounding boxes. The image-map approach uses
+     * hand-drawn polygon coords over a static anatomical image
+     * and shows color coding in the tooltip (not the image). */
     html += '<div class="body-anatomical-container" id="body-anatomical-container">';
-    html += buildAnatomicalSVG();
+    html += '<div id="body-imagemap-host"></div>';
     html += '</div>';
 
     /* Tooltip element */
@@ -378,6 +398,28 @@
 
     /* Attach event handlers */
     attachEventHandlers();
+
+    /* Hand off the body rendering to body-imagemap.js. It reads
+     * measurementData and currentViewMode from the same module-level
+     * state used by the rest of body-anatomical.js (via the global
+     * window.HealthAgent.bodyAnatomical namespace) and renders the
+     * image map into the host div. */
+    if (window.HealthAgent && window.HealthAgent.bodyImagemap) {
+      /* Sync the current view mode and data into body-imagemap.js */
+      var imagemapModule = window.HealthAgent.bodyImagemap;
+      /* Find body-imagemap's render() function via the closure we
+       * attached during init. body-imagemap.js is an IIFE so we
+       * need to call its exposed init() which re-renders. */
+      var host = document.getElementById('body-imagemap-host');
+      if (host) {
+        imagemapModule.init(host, measurementData);
+        /* Re-use body-anatomical's view mode rather than the
+         * imagemap module's own. Sync the mode. */
+        if (typeof imagemapModule.setViewMode === 'function') {
+          imagemapModule.setViewMode(currentViewMode);
+        }
+      }
+    }
   }
 
   function buildStatItem(label, value, unit, icon) {
@@ -389,35 +431,31 @@
   }
 
   /* Build the single SVG with all 13 regions as <svg> nested elements.
-   * Each nested <svg> is positioned with x/y/width/height/viewBox.
    *
-   * Critical alignment detail: the source CSS positioned each
-   * region using the FULL source viewBox width (e.g. 109.532 for
-   * left-shoulder) as the container width. But the actual visible
-   * path inside that container only fills a portion of it (e.g.
-   * ~40 wide for left-shoulder). The source CSS effectively centered
-   * the visible path inside its container.
+   * Each region is positioned by its TARGET_CENTERS target: the
+   * path's actual bbox is measured at render time, and the nested
+   * SVG is placed so the path's bbox center lands exactly on
+   * TARGET_CENTERS[key]. This decouples us from the source CSS
+   * positions entirely.
    *
-   * To preserve this in our single-SVG approach, we:
-   *   1. Create a temporary hidden <path> with the source's d + viewBox
-   *   2. Use getBBox() to find the path's actual extent
-   *   3. Compute the visible path's centerline: source container
-   *      center = 103.5 + margin-left + viewBox.w/2
-   *   4. Position the nested <svg> at centerline - bbox.w/2, y = top
-   *   5. Set width/height to bbox.w/bbox.h, viewBox to bbox.x..bbox.x+w
-   *   6. Apply the source's d with a transform="translate(-bbox.x, -bbox.y)"
-   *      to shift the path's content into the nested viewBox
-   *
-   * End result: every path's visible extent sits exactly where the
-   * source CSS placed it. */
+   * Concretely, for each region:
+   *   - Compute path bbox = (bbox.x, bbox.y, bbox.w, bbox.h)
+   *   - target = TARGET_CENTERS[key] = (tx, ty)
+   *   - nestedX = tx - bbox.w / 2   (path's left edge in unified viewBox)
+   *   - nestedY = ty - bbox.h / 2   (path's top edge in unified viewBox)
+   *   - nestedWidth  = bbox.w
+   *   - nestedHeight = bbox.h
+   *   - viewBox = "bbox.x bbox.y bbox.w bbox.h"
+   *     (the path is drawn using its source d, but the nested SVG
+   *     crops to the path's actual extent, so the bbox is the
+   *     entire nested SVG content). */
   function buildAnatomicalSVG() {
     var mode = VIEW_MODES[currentViewMode];
     var data = measurementData;
 
     /* viewBox chosen to fit all 13 regions with a small margin.
-     *   x range: 1 (left-hand left edge) to 297.844 (right-arm right edge)
-     *   y range: -6 (head top) to 485 (foot bottom)
-     * viewBox: -5 -6 320 510. */
+     * Centered around x=103 (the body centerline) and y=0..470
+     * vertically. */
     var svg = '<svg id="body-anatomical-svg" viewBox="-5 -6 320 510" xmlns="http://www.w3.org/2000/svg" ' +
               'preserveAspectRatio="xMidYMin meet" ' +
               'style="width:100%;height:100%;display:block">';
@@ -439,7 +477,7 @@
     for (var i = 0; i < Z_ORDER.length; i++) {
       var key = Z_ORDER[i];
       var pathInfo = ANATOMICAL_PATHS[key];
-      var pos = ANATOMICAL_POSITIONS[key];
+      var target = TARGET_CENTERS[key];
       var bbox = bboxes[key];
 
       /* Get value for this region */
@@ -456,20 +494,11 @@
         val = 0;
       }
 
-      /* Compute visible position.
-       *   sourceElementCenterX = pos.x + pathInfo.w / 2
-       *     (pos.x is the source container's left edge in the 207px-
-       *     wide original container; add half its viewBox width to
-       *     get its centerline)
-       *   visiblePathCenterX = sourceElementCenterX
-       *     (the path is centered in the source container)
-       *   nestedX = visiblePathCenterX - bbox.w / 2
-       *   nestedY = pos.y + bbox.y
-       *     (path's bbox.y might be slightly negative — e.g. -0.004 —
-       *     because paths are drawn relative to a sub-coordinate) */
-      var sourceCenterX = pos.x + pathInfo.w / 2;
-      var nestedX = sourceCenterX - bbox.w / 2;
-      var nestedY = pos.y + bbox.y;
+      /* Position the nested SVG so the path's bbox center lands on
+       * (target.x, target.y). nestedX/nestedY are the nested SVG's
+       * top-left in the unified viewBox. */
+      var nestedX = target.x - bbox.w / 2;
+      var nestedY = target.y - bbox.h / 2;
 
       svg += '<svg class="anatomical-region" data-region="' + key + '" ' +
              'x="' + nestedX.toFixed(3) + '" y="' + nestedY.toFixed(3) + '" ' +
@@ -569,6 +598,12 @@
     if (newMode && newMode !== currentViewMode) {
       currentViewMode = newMode;
       render();
+      /* Sync the view mode to body-imagemap so its tooltip uses
+       * the same metric (fat% / fat lbs / muscle lbs). */
+      if (window.HealthAgent && window.HealthAgent.bodyImagemap &&
+          typeof window.HealthAgent.bodyImagemap.setViewMode === 'function') {
+        window.HealthAgent.bodyImagemap.setViewMode(newMode);
+      }
     }
   }
 
