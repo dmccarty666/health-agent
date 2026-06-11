@@ -1,43 +1,40 @@
 /**
- * Health Agent — Anatomical Body Map (single-SVG renderer)
+ * Health Agent — Anatomical Body Map (8-region image map)
  *
- * Renders a 13-region human figure as a single <svg> with all parts
- * positioned by SVG transform. This replaces the old approach of
- * stacking 13 separate absolutely-positioned <svg> elements, which was
- * prone to alignment drift when CSS changed.
+ * Renders the 8-region anatomical view. The actual body figure is
+ * drawn by body-imagemap.js (a static image with <area> hotspots);
+ * this module handles the page-level UI: stats bar, view mode
+ * toggles (Fat %, Fat lbs, Muscle lbs), color legend, and the
+ * "8-Region Anatomical" view label.
  *
- * SVG paths adapted from volcanioo/Human-Body-Rendering-HTML
- * (volcanioo on GitHub, MIT-by-convention). Attribution noted in
- * README.
+ * History:
+ *   - PR #1-#6: built progressively more accurate SVG-path renderers
+ *     based on volcanioo/Human-Body-Rendering-HTML. Each iteration
+ *     had alignment issues because the source SVG paths have empty
+ *     space inside their bounding boxes that no amount of positioning
+ *     could bridge. Visible in the dashboard as gaps between hands
+ *     and arms, feet and legs, etc.
+ *   - PR #7: replaced SVG rendering with a static anatomical image
+ *     (the user-provided JPG) and hand-drawn <area> polygons. The
+ *     body figure is now a single image; region coloring is in the
+ *     tooltip, not the image itself.
+ *   - PR #8: removed head/hands/feet regions (no data for them) and
+ *     shifted polygons to fix a left-skew. The image-map approach
+ *     with manual coords is the most reliable region detection.
+ *   - PR #9 (this): removed the 5-region simple view (body-map.js).
+ *     The 8-region anatomical image map is now the only view.
  *
- * Coordinate system:
- *   The whole body is drawn inside one <svg viewBox="-5 -6 270 491">.
- *   Each region is a <g data-region="..."> with a transform that
- *   translates it to its anatomically-correct position. The source
- *   paths use their own internal coordinate system (0..naturalW, 0..naturalH);
- *   the transform puts them in place inside the unified viewBox.
+ * Region-to-segment mapping (Hume scale provides 5 segments, mapped
+ * directly to 8 anatomical regions: trunk mass is split across
+ * shoulders/chest/stomach):
  *
- * Position table derivation (from original volcanioo CSS):
- *   Original: container was 207px wide, parts were placed with
- *     `left: 50%; margin-left: <ml>px; top: <top>px;`
- *   Translation to viewBox coords:
- *     x = 103.5 + margin-left  (where 103.5 = 207/2)
- *     y = top
- *   Result: every part has a transform="translate(x, y)" inside the
- *   unified SVG, scaled together, no alignment issues.
- *
- * Region-to-segment mapping (Hume scale only provides 5 segments, so
- * trunk mass is distributed across shoulders/chest/stomach and hands/
- * feet are rendered with reduced estimated values):
- *
- *   Hume 5-region   →   Anatomical 13-region
- *   ──────────────       ─────────────────────
+ *   Hume 5-region   →   Anatomical 8-region
+ *   ──────────────       ──────────────────
  *   trunk             →   left-shoulder, right-shoulder, chest, stomach
  *   rightArm          →   right-arm
  *   leftArm           →   left-arm
  *   rightLeg          →   right-leg
  *   leftLeg           →   left-leg
- *   (new)             →   head, left-hand, right-hand, left-foot, right-foot
  *
  * Trunk distribution ratios (anatomically-motivated):
  *   - left-shoulder: 0.10  (4.5 lbs muscle, 1.5 lbs fat per side at avg)
@@ -208,7 +205,6 @@
   var currentViewMode = 'fat_pct';
   var measurementData = null;
   var activeTooltip = null;
-  var onBackCallback = null;
 
   /* ================================================================
    * HELPERS
@@ -367,10 +363,10 @@
     }
     html += '</div>';
 
-    /* View mode toggle: 5-region vs 13-region anatomical */
+    /* View label — only the 8-region anatomical view remains
+     * (5-region simple view removed in PR #9, see commit) */
     html += '<div class="body-map-view-modes">';
-    html += '<button class="body-map-view-btn" data-view="simple">← 5-Region</button>';
-    html += '<span class="body-map-view-current">13-Region Anatomical</span>';
+    html += '<span class="body-map-view-current">8-Region Anatomical</span>';
     html += '</div>';
 
     /* Color legend */
@@ -572,12 +568,6 @@
       modeButtons[i].addEventListener('click', onModeToggleClick);
     }
 
-    /* View switch button (5-region vs 13-region) */
-    var viewBtn = container.querySelector('.body-map-view-btn');
-    if (viewBtn) {
-      viewBtn.addEventListener('click', onViewSwitchClick);
-    }
-
     /* Region hover/click — attach to <g> elements in the unified SVG */
     var regions = container.querySelectorAll('.anatomical-region');
     for (var j = 0; j < regions.length; j++) {
@@ -604,15 +594,6 @@
           typeof window.HealthAgent.bodyImagemap.setViewMode === 'function') {
         window.HealthAgent.bodyImagemap.setViewMode(newMode);
       }
-    }
-  }
-
-  function onViewSwitchClick() {
-    /* Switch back to 5-region view via the registered callback. */
-    if (onBackCallback) {
-      onBackCallback();
-    } else if (window.HealthAgent && window.HealthAgent.bodyMap) {
-      window.HealthAgent.bodyMap.refresh();
     }
   }
 
@@ -714,10 +695,7 @@
    * PUBLIC API
    * ================================================================ */
 
-  function init(onBackToSimple) {
-    if (onBackToSimple) {
-      onBackCallback = onBackToSimple;
-    }
+  function init() {
     initialized = true;
 
     fetchLatestMeasurement()
@@ -750,12 +728,32 @@
    * The body's app.js activates subtabs by adding .active class, so
    * we use a MutationObserver to detect that.
    *
-   * NOTE: anatomical view is now opt-in. body-map.js's render() shows
-   * the toggle button that calls our init(). The 5-region view is the
-   * default. This avoids a race condition where both views rendered
-   * simultaneously. */
-  /* Disabled auto-init. The toggle button in body-map.js will call
-   * window.HealthAgent.bodyAnatomical.init() explicitly. */
+   * Previously the anatomical view was opt-in (body-map.js's render()
+   * showed the toggle button that called our init()). The 5-region
+   * simple view was removed in PR #9; the anatomical view is now the
+   * only view, so it auto-initializes when the subtab is activated. */
+  if (document.getElementById('subtab-body-map')) {
+    var bodyMapSubtab = document.getElementById('subtab-body-map');
+    var bodyMapObserver = new MutationObserver(function (mutations) {
+      for (var k = 0; k < mutations.length; k++) {
+        if (mutations[k].attributeName === 'class' &&
+            bodyMapSubtab.classList.contains('active') &&
+            !initialized) {
+          init();
+          break;
+        }
+      }
+    });
+    bodyMapObserver.observe(bodyMapSubtab, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
+    /* Also try immediate init in case the subtab is already active
+     * (e.g. user reloads page while on the body-map tab). */
+    if (bodyMapSubtab.classList.contains('active') && !initialized) {
+      init();
+    }
+  }
 
-  console.log('[body-anatomical] Module loaded (opt-in, waiting for toggle)');
+  console.log('[body-anatomical] Module loaded (auto-init on subtab activation)');
 })();

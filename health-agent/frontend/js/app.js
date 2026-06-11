@@ -182,11 +182,12 @@
       }
     });
 
-    /* Initialize deferred sub-tab modules */
+    /* Initialize deferred sub-tab modules.
+     * Note: 'body-map' sub-tab is rendered by body-anatomical.js /
+     * body-imagemap.js (the 5-region simple view was removed; the
+     * anatomical view is the only one now). */
     if (subtabId === 'body-overview' && window.HealthAgent.bodyOverview) {
       window.HealthAgent.bodyOverview.init();
-    } else if (subtabId === 'body-map' && window.HealthAgent.bodyMap) {
-      window.HealthAgent.bodyMap.init();
     } else if (subtabId === 'body-trends' && window.HealthAgent.bodyTrends) {
       window.HealthAgent.bodyTrends.init();
     }

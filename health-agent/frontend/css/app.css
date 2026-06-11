@@ -1578,7 +1578,9 @@ body {
 /* ================================================================
  * BODY MAP — View Mode Switcher
  *
- * 5-Region ↔ 12-Region Anatomical toggle bar
+ * Label for the current view (8-region anatomical). The 5-region
+ * simple view was removed in PR #9; the only view remaining is the
+ * 8-region anatomical image map.
  * ================================================================ */
 
 .body-map-view-modes {
@@ -1599,39 +1601,12 @@ body {
   opacity: 0.7;
 }
 
-.body-map-view-btn {
-  background: hsl(var(--primary) / 0.12);
-  color: hsl(var(--primary));
-  border: 1px solid hsl(var(--primary) / 0.3);
-  border-radius: 6px;
-  padding: 4px 10px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: all 0.15s ease;
-  font-family: inherit;
-}
-
-.body-map-view-btn:hover {
-  background: hsl(var(--primary) / 0.2);
-  border-color: hsl(var(--primary) / 0.5);
-  transform: translateY(-1px);
-}
-
-.body-map-view-btn:active {
-  transform: translateY(0);
-}
-
 /* ================================================================
- * BODY ANATOMICAL — 13-Region View (single-SVG renderer)
+ * BODY ANATOMICAL — 8-Region View
  *
- * One unified SVG contains all 13 body regions as <g> groups, each
- * positioned with transform="translate(x, y)". The viewBox handles
- * alignment by construction — impossible for parts to drift.
- *
- * Paths adapted from volcanioo/Human-Body-Rendering-HTML.
+ * The 5-region simple view (body-map.js) was removed in PR #9.
+ * The 8-region anatomical image map is now the only view; styling
+ * here supports that image map (tooltip, container, hover states).
  * ================================================================ */
 
 /* Body image-map container. The image is 270x360 (3:4 portrait)
