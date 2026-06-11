@@ -1,0 +1,1 @@
+{"task_id": "task-1779981116-670915", "title": "agent-3", "body": "echo 'Agent 3 PID=670890 starting' && sleep 1 && echo 'Agent 3 done at 10:11:56' && echo '{\"status\": \"done\", \"summary\": \"Agent 3 completed\"}' > /tmp/agent_.json"}

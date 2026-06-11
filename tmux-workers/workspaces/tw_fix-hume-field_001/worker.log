@@ -1,0 +1,7 @@
+[tw_fix-hume-field_001] 2026-05-29T16:01:46-05:00 bootstrap.sh START
+[tw_fix-hume-field_001] task: Fix Hume Field Mapping & Segmental Data
+[tw_fix-hume-field_001] SOUL copied to workspace
+[tw_fix-hume-field_001] task-type: bash
+bash: line 1: You: command not found
+bash: -c: line 3: syntax error near unexpected token `('
+bash: -c: line 3: `PROBLEM: The Hume Firebase raw data uses different field names than what our FIELD_MAP expects. As a result, many fields (segmental data, metabolic rate, water compartments, etc.) are stored as NULL in PostgreSQL.'

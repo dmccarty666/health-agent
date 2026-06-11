@@ -1,0 +1,10 @@
+{
+  "task_id": "tw_api-key-task_001",
+  "session": "tw_api-key-task_001",
+  "status": "done",
+  "summary": "",
+  "artifacts": [
+    "worker.log"
+  ],
+  "exit_code": 0
+}

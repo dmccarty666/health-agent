@@ -1,0 +1,29 @@
+{
+  "status": "failed",
+  "task_id": "tw_hermes-path-test_001",
+  "session": "test-fix-session",
+  "story_id": "test-path",
+  "summary": "[tw_hermes-path-test_001] 2026-05-28T16:54:16-05:00 bootstrap.sh START\n[tw_hermes-path-test_001] task: Hermes path test\n[tw_hermes-path-test_001] SOUL copied to workspace\n[tw_hermes-path-test_001] task-type: nl\nsession_id: 20260528_165417_d73bdf\n(empty)",
+  "artifacts": [],
+  "gates_passed": [
+    "tests",
+    "linting",
+    "secrets",
+    "code_quality",
+    "commit"
+  ],
+  "gates_failed": [],
+  "tests_run": true,
+  "tests_passed": true,
+  "linter_passed": true,
+  "secrets_passed": true,
+  "code_quality_passed": true,
+  "commit_sha": "",
+  "exit_code": 0,
+  "blocked_reason": null,
+  "failed_reason": "exit code 0",
+  "checkpoint": {
+    "step": "status=failed",
+    "next": "N/A"
+  }
+}

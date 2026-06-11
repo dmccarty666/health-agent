@@ -1,0 +1,9 @@
+[tw_api-key-task_001] 2026-05-28T11:59:41-05:00 bootstrap started
+[tw_api-key-task_001] 2026-05-28T11:59:41-05:00 workspace: /home/dmccarty/.hermes/PROJECTS/tmux-workers/workspaces/tw_api-key-task_001
+[tw_api-key-task_001] 2026-05-28T11:59:41-05:00 loaded task: API key task
+[tw_api-key-task_001] 2026-05-28T11:59:41-05:00 executing task body as bash...
+[tw_api-key-task_001] 2026-05-28T11:59:41-05:00 task exited with code 0
+[tw_api-key-task_001] 2026-05-28T11:59:41-05:00 result written to /home/dmccarty/.hermes/PROJECTS/tmux-workers/workspaces/tw_api-key-task_001/result.json
+[tw_api-key-task_001] 2026-05-28T11:59:41-05:00 posting completion to http://localhost:9876/webhook/completion
+[tw_api-key-task_001] 2026-05-28T11:59:41-05:00 webhook responded: HTTP 200
+[tw_api-key-task_001] 2026-05-28T11:59:41-05:00 worker done — exiting

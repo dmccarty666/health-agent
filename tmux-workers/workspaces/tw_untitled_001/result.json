@@ -1,0 +1,19 @@
+{
+  "status": "failed",
+  "task_id": "tw_untitled_001",
+  "summary": "Task is malformed: task.md is empty. No work specified.",
+  "artifacts": [],
+  "gates_passed": [],
+  "gates_failed": [],
+  "blocked_reason": null,
+  "failed_reason": "Malformed task: task.md is empty — no job body provided",
+  "tests_run": false,
+  "tests_passed": false,
+  "commit_sha": null,
+  "checkpoint": {
+    "step": "detected empty task.md",
+    "files_created": [],
+    "files_modified": [],
+    "next": "none — task body absent"
+  }
+}

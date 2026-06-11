@@ -1,0 +1,1 @@
+{"task_id": "tw_plaid-bank-sync_001", "title": "Plaid bank sync", "body": "echo F-3.1 plaid", "project": "financial-agent", "story_id": "F-3.1", "slug": "plaid-bank-sync", "display_name": "F-3.1: Plaid bank sync", "seq": 1}

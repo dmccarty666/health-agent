@@ -1,0 +1,5 @@
+[tw_core-lib-verify_001] 2026-06-01T09:10:09-05:00 bootstrap.sh START
+[tw_core-lib-verify_001] task: Verify hermes_memory_core files and line counts
+[tw_core-lib-verify_001] SOUL copied to workspace
+[tw_core-lib-verify_001] task-type: bash
+bash: -c: line 1: unexpected EOF while looking for matching `"'

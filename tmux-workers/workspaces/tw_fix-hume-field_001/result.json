@@ -1,0 +1,29 @@
+{
+  "status": "failed",
+  "task_id": "tw_fix-hume-field_001",
+  "session": "tw_fix-hume-field_001",
+  "story_id": "F-0.7",
+  "summary": "rap.sh START\n[tw_fix-hume-field_001] task: Fix Hume Field Mapping & Segmental Data\n[tw_fix-hume-field_001] SOUL copied to workspace\n[tw_fix-hume-field_001] task-type: bash\nbash: line 1: You: command not found\nbash: -c: line 3: syntax error near unexpected token `('\nbash: -c: line 3: `PROBLEM: The Hume Firebase raw data uses different field names than what our FIELD_MAP expects. As a result, many fields (segmental data, metabolic rate, water compartments, etc.) are stored as NULL in PostgreSQL.'",
+  "artifacts": [],
+  "gates_passed": [
+    "tests",
+    "linting",
+    "secrets",
+    "code_quality",
+    "commit"
+  ],
+  "gates_failed": [],
+  "tests_run": true,
+  "tests_passed": true,
+  "linter_passed": true,
+  "secrets_passed": true,
+  "code_quality_passed": true,
+  "commit_sha": "",
+  "exit_code": 2,
+  "blocked_reason": null,
+  "failed_reason": "exit code 2",
+  "checkpoint": {
+    "step": "status=failed",
+    "next": "N/A"
+  }
+}

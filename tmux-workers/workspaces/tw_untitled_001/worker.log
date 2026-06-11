@@ -1,0 +1,78 @@
+[tw_untitled_001] 2026-05-28T14:49:26-05:00 bootstrap.sh START
+[tw_untitled_001] task: Untitled
+[tw_untitled_001] SOUL copied to workspace
+[tw_untitled_001] task-type: nl
+[tw_untitled_001] MODE A: invoking LLM agent...
+  ┊ review diff
+  ┊ review diff
+a/workspaces/tw_untitled_001/result.json → b/workspaces/tw_untitled_001/result.json
+a/workspaces/tw_untitled_001/result.json → b/workspaces/tw_untitled_001/result.json
+@@ -0,0 +1,19 @@
+@@ -0,0 +1,19 @@
++{
++{
++  "status": "failed",
++  "status": "failed",
++  "task_id": "tw_untitled_001",
++  "task_id": "tw_untitled_001",
++  "summary": "Task is malformed: task.md is empty. No work specified.",
++  "summary": "Task is malformed: task.md is empty. No work specified.",
++  "artifacts": [],
++  "artifacts": [],
++  "gates_passed": [],
++  "gates_passed": [],
++  "gates_failed": [],
++  "gates_failed": [],
++  "blocked_reason": null,
++  "blocked_reason": null,
++  "failed_reason": "Malformed task: task.md is empty — no job body provided",
++  "failed_reason": "Malformed task: task.md is empty — no job body provided",
++  "tests_run": false,
++  "tests_run": false,
++  "tests_passed": false,
++  "tests_passed": false,
++  "commit_sha": null,
++  "commit_sha": null,
++  "checkpoint": {
++  "checkpoint": {
++    "step": "detected empty task.md",
++    "step": "detected empty task.md",
++    "files_created": [],
++    "files_created": [],
++    "files_modified": [],
++    "files_modified": [],
++    "next": "none — task body absent"
++    "next": "none — task body absent"
++  }
++  }
++}
++}
+  ┊ review diff
+  ┊ review diff
+a/workspaces/tw_untitled_001/checkpoint.json → b/workspaces/tw_untitled_001/checkpoint.json
+a/workspaces/tw_untitled_001/checkpoint.json → b/workspaces/tw_untitled_001/checkpoint.json
+@@ -0,0 +1,6 @@
+@@ -0,0 +1,6 @@
++{
++{
++  "step": "failed: empty task.md",
++  "step": "failed: empty task.md",
++  "files_created": [],
++  "files_created": [],
++  "files_modified": [],
++  "files_modified": [],
++  "next": "none"
++  "next": "none"
++}
++}
+Task body was empty — no work to perform. result.json written with `status: "failed"`, webhook POSTed (HTTP 200), exited 1.
+
+session_id: 20260528_144927_68f2d1
+Task body was empty — no work to perform. result.json written with `status: "failed"`, webhook POSTed (HTTP 200), exited 1.
+
+session_id: 20260528_144927_68f2d1
+[tw_untitled_001] running quality gates...
+  File "<stdin>", line 5
+    gate(name, passed, output):
+                              ^
+SyntaxError: invalid syntax

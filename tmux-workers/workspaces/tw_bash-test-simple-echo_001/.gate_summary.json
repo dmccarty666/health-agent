@@ -1,0 +1,38 @@
+{
+  "passed_gates": [
+    "tests",
+    "linting",
+    "secrets",
+    "code_quality",
+    "commit"
+  ],
+  "failed_gates": [],
+  "all_passed": true,
+  "details": {
+    "tests": {
+      "passed": true,
+      "skipped": true,
+      "note": "gate file not found"
+    },
+    "linting": {
+      "passed": true,
+      "skipped": true,
+      "note": "gate file not found"
+    },
+    "secrets": {
+      "passed": true,
+      "skipped": true,
+      "note": "gate file not found"
+    },
+    "code_quality": {
+      "passed": true,
+      "skipped": true,
+      "note": "gate file not found"
+    },
+    "commit": {
+      "passed": true,
+      "skipped": true,
+      "note": "gate file not found"
+    }
+  }
+}

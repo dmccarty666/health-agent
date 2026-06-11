@@ -1,0 +1,6 @@
+{
+  "step": "completed: wrote /tmp/goal-counter.txt with value 1",
+  "files_created": ["/tmp/goal-counter.txt"],
+  "files_modified": [],
+  "next": null
+}

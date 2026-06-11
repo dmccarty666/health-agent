@@ -1,0 +1,7 @@
+[tw_clean-e2e-test_001] 2026-05-28T15:09:32-05:00 bootstrap.sh START
+[tw_clean-e2e-test_001] task: Clean E2E test
+[tw_clean-e2e-test_001] task: Clean E2E test
+[tw_clean-e2e-test_001] SOUL copied to workspace
+[tw_clean-e2e-test_001] task-type: nl
+[tw_clean-e2e-test_001] MODE A: invoking LLM agent...
+cat: /home/dmccarty/.hermes/PROJECTS/tmux-workers/workspaces/tw_clean-e2e-test_001/task.md: No such file or directory

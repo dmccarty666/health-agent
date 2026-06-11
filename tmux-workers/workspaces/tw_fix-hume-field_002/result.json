@@ -1,0 +1,31 @@
+{
+  "status": "done",
+  "task_id": "tw_fix-hume-field_002",
+  "session": "tw_fix-hume-field_002",
+  "story_id": "F-0.7",
+  "summary": "gmental()` function:**\n- Converts 5 muscle weight indices \u2192 kg (rightArm, leftArm, trunk, rightLeg, leftLeg)\n- Converts 5 fat indices \u2192 kg\n- Derives 5 segmental fat_pct values from computed kg\n- Uses formula: `segment_kg = index * (total_kg / sum_of_all_indices)`\n**Verified:** Sync ran, 47 records inserted. psql confirmed e.g. lean_mass_kg=75.700 (from fatFreeMass), skel_muscle_kg=70.600 (from muscleMass), seg_right_arm_muscle_kg=4.305 (computed from index 4).\nsession_id: 20260529_160607_b96803",
+  "artifacts": [
+    "checkpoint.json"
+  ],
+  "gates_passed": [
+    "tests",
+    "linting",
+    "secrets",
+    "code_quality",
+    "commit"
+  ],
+  "gates_failed": [],
+  "tests_run": true,
+  "tests_passed": true,
+  "linter_passed": true,
+  "secrets_passed": true,
+  "code_quality_passed": true,
+  "commit_sha": "",
+  "exit_code": 0,
+  "blocked_reason": null,
+  "failed_reason": null,
+  "checkpoint": {
+    "step": "status=done",
+    "next": "N/A"
+  }
+}

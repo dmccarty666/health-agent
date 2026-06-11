@@ -1,0 +1,13 @@
+[tw_e2e-final-test_001] 2026-05-28T14:34:31-05:00 bootstrap.sh START
+[tw_e2e-final-test_001] task: e2e-final-test
+[tw_e2e-final-test_001] SOUL copied to workspace
+[tw_e2e-final-test_001] task-type detected: bash
+[tw_e2e-final-test_001] MODE B: executing task body as bash...
+E2E-fini
+all-done
+[tw_e2e-final-test_001] bash task exited with code 0
+[tw_e2e-final-test_001] running quality gates...
+  File "<stdin>", line 66
+    run_gate("code_quality",
+            ^
+SyntaxError: '(' was never closed

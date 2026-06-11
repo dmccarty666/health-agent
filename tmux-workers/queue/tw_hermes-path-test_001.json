@@ -1,0 +1,10 @@
+{
+    "task_id": "tw_hermes-path-test_001",
+    "title": "Hermes path test",
+    "body": "Write the word 'pong' to /tmp/hermes-test-output.txt. Then write result.json with status done.",
+    "project": "test",
+    "story_id": "test-path",
+    "slug": "hermes-path-test",
+    "seq": 1,
+    "display_name": "test-path: Hermes path test"
+}

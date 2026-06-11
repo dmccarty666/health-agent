@@ -1,0 +1,1 @@
+python3 -c "import os; base='/home/dmccarty/.hermes/hermes-agent'; files={'plugins/memory/hermes-local/__init__.py':775,'plugins/memory/hermes-local/tools.py':676,'plugins/memory/hermes-local/narrative.py':250,'plugins/memory/hermes-local/cli.py':415}; [print(f'{f}: {len(open(os.path.join(base,f)).readlines())} lines') for f,e in files.items()]"
