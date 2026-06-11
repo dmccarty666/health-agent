@@ -1483,11 +1483,15 @@ body {
   pointer-events: none;
 }
 
-/* Segment detail cards row */
+/* Segment detail cards row — 8 regions shown as 2x4 grid */
 .body-map-segments {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 0.5rem;
+  margin-top: 1.25rem;
+  max-width: 720px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 @media (max-width: 900px) {
