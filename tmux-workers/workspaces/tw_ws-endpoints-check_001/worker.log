@@ -1,8 +1,0 @@
-[tw_ws-endpoints-check_001] 2026-06-01T09:10:09-05:00 bootstrap.sh START
-[tw_ws-endpoints-check_001] task: Check web_server memory endpoints
-[tw_ws-endpoints-check_001] SOUL copied to workspace
-[tw_ws-endpoints-check_001] task-type: bash
-  File "<string>", line 1
-    import re; content=open('/home/dmccarty/.hermes/hermes-agent/hermes_cli/web_server.py').read(); eps=re.findall(r'@(?:app|router)\.(?:get|post|put|delete)\(["'](/api/dashboard/memory[^"']+)', content); [print(f'{m.upper():6} {p}') for m,p in sorted(set(eps))]
-                                                                                                                                                                  ^
-SyntaxError: closing parenthesis ']' does not match opening parenthesis '('

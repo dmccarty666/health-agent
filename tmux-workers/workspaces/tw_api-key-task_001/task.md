@@ -1,1 +1,0 @@
-export API_KEY=sk-test9876543210ABCDEF

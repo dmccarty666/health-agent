@@ -1,1 +1,0 @@
-{"task_id": "tw_bash-test-simple-echo_001", "title": "bash-test: simple echo", "body": "echo hello from bootstrap && echo done", "project": null, "story_id": "tw_bootstrap-final-test", "slug": "bash-test-simple-echo", "display_name": "tw_bootstrap-final-test: bash-test: simple echo", "seq": 1}

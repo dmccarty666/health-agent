@@ -1,6 +1,0 @@
-[tw_attach-test_001] 2026-05-28T17:21:11-05:00 bootstrap.sh START
-[tw_attach-test_001] task: Attach test
-[tw_attach-test_001] SOUL copied to workspace
-[tw_attach-test_001] task-type: bash
-hello-from-attach-test
-done

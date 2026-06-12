@@ -1,7 +1,0 @@
-[tw_core-lib-check_001] 2026-06-01T09:01:43-05:00 bootstrap.sh START
-[tw_core-lib-check_001] task: Verify hermes_memory_core library integrity
-[tw_core-lib-check_001] SOUL copied to workspace
-[tw_core-lib-check_001] task-type: bash
-bash: line 1: You: command not found
-bash: -c: line 3: syntax error near unexpected token `('
-bash: -c: line 3: `Files to verify (use wc -l and python3 import checks):'

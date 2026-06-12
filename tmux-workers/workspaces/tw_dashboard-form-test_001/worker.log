@@ -1,6 +1,0 @@
-[tw_dashboard-form-test_001] 2026-05-28T17:15:01-05:00 bootstrap.sh START
-[tw_dashboard-form-test_001] task: Dashboard form test
-[tw_dashboard-form-test_001] SOUL copied to workspace
-[tw_dashboard-form-test_001] task-type: bash
-hello-from-dashboard
-done

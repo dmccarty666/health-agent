@@ -1,9 +1,0 @@
-[tw_convert-units-to_001] 2026-05-29T16:02:01-05:00 bootstrap.sh START
-[tw_convert-units-to_001] task: Convert Units to LBS & Fix Fat Analysis Card
-[tw_convert-units-to_001] SOUL copied to workspace
-[tw_convert-units-to_001] task-type: bash
-bash: line 1: Fix: command not found
-bash: line 3: The: command not found
-bash: line 5: ISSUES: command not found
-bash: -c: line 7: syntax error near unexpected token `('
-bash: -c: line 7: `1. UNIT CONVERSION (kg → lbs):'

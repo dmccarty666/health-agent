@@ -1,6 +1,0 @@
-{
-  "step": "completed: updated goal-counter.txt from 1 to 10",
-  "files_created": [],
-  "files_modified": ["/tmp/goal-counter.txt"],
-  "next": "done"
-}

@@ -1,8 +1,0 @@
-[tw_plugin-verify_001] 2026-06-01T09:11:49-05:00 bootstrap.sh START
-[tw_plugin-verify_001] task: Verify hermes-local plugin files
-[tw_plugin-verify_001] SOUL copied to workspace
-[tw_plugin-verify_001] task-type: bash
-plugins/memory/hermes-local/__init__.py: 775 lines
-plugins/memory/hermes-local/tools.py: 676 lines
-plugins/memory/hermes-local/narrative.py: 250 lines
-plugins/memory/hermes-local/cli.py: 415 lines

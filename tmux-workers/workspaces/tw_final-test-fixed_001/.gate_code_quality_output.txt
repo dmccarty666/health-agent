@@ -1,2 +1,0 @@
-CODE_QC_PASS
-CODEQC_RC:$?

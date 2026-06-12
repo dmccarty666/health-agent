@@ -1,9 +1,0 @@
-[tw_bootstrap-exit-0_001] 2026-05-28T12:13:32-05:00 bootstrap started
-[tw_bootstrap-exit-0_001] 2026-05-28T12:13:32-05:00 workspace: /home/dmccarty/.hermes/PROJECTS/tmux-workers/workspaces/tw_bootstrap-exit-0_001
-[tw_bootstrap-exit-0_001] 2026-05-28T12:13:32-05:00 loaded task: Bootstrap exit 0
-[tw_bootstrap-exit-0_001] 2026-05-28T12:13:32-05:00 executing task body as bash...
-[tw_bootstrap-exit-0_001] 2026-05-28T12:13:32-05:00 task exited with code 0
-[tw_bootstrap-exit-0_001] 2026-05-28T12:13:32-05:00 result written to /home/dmccarty/.hermes/PROJECTS/tmux-workers/workspaces/tw_bootstrap-exit-0_001/result.json
-[tw_bootstrap-exit-0_001] 2026-05-28T12:13:32-05:00 posting completion to http://localhost:9876/webhook/completion
-[tw_bootstrap-exit-0_001] 2026-05-28T12:13:32-05:00 webhook responded: HTTP 200
-[tw_bootstrap-exit-0_001] 2026-05-28T12:13:32-05:00 worker done — exiting

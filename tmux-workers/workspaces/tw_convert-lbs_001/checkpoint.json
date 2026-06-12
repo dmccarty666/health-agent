@@ -1,6 +1,0 @@
-{
-  "step": "completed: all edits, verified, committed (0ff45cd), webhook pending",
-  "files_created": [],
-  "files_modified": ["/home/dmccarty/.hermes/PROJECTS/health-agent/frontend/js/body-overview.js", "/home/dmccarty/.hermes/PROJECTS/health-agent/frontend/js/body-trends.js", "/home/dmccarty/.hermes/PROJECTS/health-agent/frontend/js/body-map.js"],
-  "next": "DONE — exit 0"
-}

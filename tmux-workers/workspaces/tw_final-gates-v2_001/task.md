@@ -1,1 +1,0 @@
-Write a Python file /tmp/fizzbuzz.py implementing fizzbuzz(n) returning a list of strings per the FizzBuzz rules. Run: python3 -c "from fizzbuzz import fizzbuzz; print(fizzbuzz(15))" to verify it works. Run quality gates. Write result.json with status done. POST webhook.

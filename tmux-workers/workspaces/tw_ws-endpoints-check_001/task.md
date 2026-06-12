@@ -1,1 +1,0 @@
-python3 -c "import re; content=open('/home/dmccarty/.hermes/hermes-agent/hermes_cli/web_server.py').read(); eps=re.findall(r'@(?:app|router)\.(?:get|post|put|delete)\([\"'](/api/dashboard/memory[^\"']+)', content); [print(f'{m.upper():6} {p}') for m,p in sorted(set(eps))]"

@@ -25,7 +25,7 @@ Build a complete Hume Body Pod dashboard tab with all 39 body composition metric
 | PostgreSQL schema | `schema.sql` | ✅ users + measurements + goals |
 | Blue2Scale reference UI | `Blue2Scale.com/` | ✅ Full PHP/JS app analyzed in STYLE-GUIDE |
 | Style guide | `docs/STYLE-GUIDE.md` | ✅ Color system, components, chart patterns |
-| Worker constitution | `tmux-workers/WORKER_SOUL.md` | ✅ Baked into `tmux-worker` profile |
+| Worker constitution | `~/.hermes/PROJECTS/tmux-workers/WORKER_SOUL.md` | ✅ Baked into `tmux-worker` profile |
 
 ---
 

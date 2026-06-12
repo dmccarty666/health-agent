@@ -1,1 +1,0 @@
-Create a Python file /tmp/hello_worker.py exporting greet(name) returning f"Hello, {name}!". Run: python3 /tmp/hello_worker.py to verify it works. Run the full quality gate suite. Write result.json with status done. POST webhook.

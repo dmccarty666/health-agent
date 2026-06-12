@@ -1,1 +1,0 @@
-{"task_id": "tw_debug-test-001", "title": "Debug test", "body": "echo 'debug task running' && sleep 1 && echo 'debug done'", "project": "test", "story_id": "debug-1"}

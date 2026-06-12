@@ -1,1 +1,0 @@
-{"task_id": "tw_attach-test_001", "title": "Attach test", "body": "echo hello-from-attach-test && echo done", "project": "test", "story_id": "test-attach", "slug": "attach-test", "display_name": "test-attach: Attach test", "seq": 1}
