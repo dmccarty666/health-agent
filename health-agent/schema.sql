@@ -92,6 +92,9 @@ CREATE TABLE IF NOT EXISTS measurements (
   CONSTRAINT fk_measurements_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
 );
 
+-- Prevent duplicate ingest for the same user+timestamp (required by ON CONFLICT in db.py)
+ALTER TABLE measurements ADD CONSTRAINT uq_measurements_user_ts UNIQUE (user_id, measured_at);
+
 -- Goals
 CREATE TABLE IF NOT EXISTS goals (
   id            VARCHAR(36)     NOT NULL PRIMARY KEY,
