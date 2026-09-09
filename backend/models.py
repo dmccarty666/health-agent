@@ -28,6 +28,11 @@ class MeasurementOut(BaseModel):
     device_name: Optional[str] = None
     note: Optional[str] = None
 
+    # Provenance: 'bridge' (Pi BLE) | 'apple_health' (Hume via HealthKit)
+    # | 'manual' (future). Defaults to 'bridge' for rows ingested before
+    # migration 0001.
+    source: str = "bridge"
+
     # Core
     weight_kg: Optional[Decimal] = None
     bmi: Optional[Decimal] = None
@@ -202,3 +207,15 @@ class IngestOut(BaseModel):
     measured_at: datetime
     device_name: Optional[str] = None
     measurement_count: int = 0
+
+
+
+# ---------------------------------------------------------------------------
+# Apple Health ingest models — defined in apple_health_schema.py for clarity,
+# re-exported here so app.py has a single import surface.
+# ---------------------------------------------------------------------------
+from apple_health_schema import (  # noqa: E402, F401
+    AppleHealthSampleIn,
+    HealthSaveBatchIn,
+    HealthSaveSample,
+)

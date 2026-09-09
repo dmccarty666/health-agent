@@ -22,6 +22,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from db import get_cursor, get_user_id
 from models import (
+    AppleHealthSampleIn,
     HealthzOut,
     IngestMeasurementIn,
     IngestOut,
@@ -402,6 +403,108 @@ async def ingest_measurement(
             (uid, payload_dict["measured_at"]),
         )
         existed = cur.fetchone() is not None
+
+        cur.execute(
+            f"""
+            INSERT INTO measurements ({', '.join(columns)})
+            VALUES ({', '.join(['%s'] * len(columns))})
+            ON CONFLICT (user_id, measured_at) DO UPDATE
+            SET {update_sql}
+            """,
+            row,
+        )
+        cur.execute("SELECT COUNT(*) AS n FROM measurements WHERE user_id = %s", (uid,))
+        count_row = cur.fetchone()
+        total = count_row["n"] if count_row else 0
+
+    return IngestOut(
+        status="ok",
+        action="updated" if existed else "inserted",
+        measured_at=payload_dict["measured_at"],
+        device_name=payload_dict.get("device_name"),
+        measurement_count=total,
+    )
+
+
+# ───────────────────────────────────────────────────────────────────────────
+# INGEST (Apple Health) — POST /api/ingest/apple_health
+#
+# Accepts one weigh-in payload from:
+#   - scripts/parse_apple_health.py (Phase 0 historical export)
+#   - the IONOS relay (Phase 1 live sync, after it groups HealthSave samples)
+#
+# Same HMAC auth as /api/ingest/measurement. Stores with source='apple_health'
+# so we can distinguish from Pi-bridge rows in the dashboard.
+#
+# Schema note: source column is NOT NULL DEFAULT 'bridge'. We always set it
+# explicitly here to 'apple_health' so the rows can be filtered by provenance.
+# ───────────────────────────────────────────────────────────────────────────
+
+
+@app.post("/api/ingest/apple_health", response_model=IngestOut)
+async def ingest_apple_health(
+    payload: AppleHealthSampleIn,
+    request: Request,
+    x_scale_timestamp: Optional[str] = Header(None, alias="X-Scale-Timestamp"),
+    x_scale_signature: Optional[str] = Header(None, alias="X-Scale-Signature"),
+) -> IngestOut:
+    """Accept an Apple Health-derived weigh-in from a trusted local source.
+
+    Sources:
+      - Historical: scripts/parse_apple_health.py
+      - Live: IONOS health-ingest-relay (groups HealthSave batches)
+
+    Behavior on conflict: the apple_health row OVERWRITES any bridge row
+    at the same (user_id, measured_at). This is intentional — Hume's
+    HealthKit values are the ground truth we're calibrating the bridge
+    against, so when both sources have data for the same weigh-in, the
+    apple_health value wins. The bridge's primary metrics stay close
+    enough that overwriting with apple_health data is a calibration
+    improvement, not a data loss.
+
+    Pre-existing (user_id, measured_at) UNIQUE constraint requires this
+    overwrite-on-conflict semantic. If we ever need to keep both rows
+    side-by-side, the constraint must change to UNIQUE(user_id,
+    measured_at, source).
+    """
+    raw_body = await request.body()
+    if not _verify_ingest_signature(INGEST_SECRET, x_scale_timestamp or "", x_scale_signature or "", raw_body):
+        raise HTTPException(status_code=401, detail="Invalid or missing signature")
+
+    uid = get_user_id()
+    if not uid:
+        raise HTTPException(status_code=503, detail="No user configured in database")
+
+    payload_dict = payload.model_dump()
+    # Build columns with source forced to apple_health. This is the explicit
+    # write per the design doc (so dashboard can filter by source).
+    payload_dict["source"] = "apple_health"
+
+    columns = ["id", "user_id", "measured_at", "device_name", "note", "source"] + sorted(ALL_METRIC_COLUMNS)
+    update_cols = [c for c in columns if c not in ("id", "user_id", "measured_at")]
+    update_sql = ", ".join(f"{c} = EXCLUDED.{c}" for c in update_cols)
+
+    row = (
+        str(uuid.uuid4()),
+        uid,
+        payload_dict["measured_at"],
+        payload_dict.get("device_name"),
+        payload_dict.get("note"),
+        payload_dict["source"],
+    ) + tuple(payload_dict.get(col) for col in sorted(ALL_METRIC_COLUMNS))
+
+    with get_cursor() as cur:
+        # Check existing rows for this (user_id, measured_at) - any source.
+        # If a bridge row exists, leave it alone (we keep both).
+        cur.execute(
+            """SELECT source FROM measurements
+               WHERE user_id = %s AND measured_at = %s
+               ORDER BY CASE source WHEN 'apple_health' THEN 0 ELSE 1 END
+               LIMIT 1""",
+            (uid, payload_dict["measured_at"]),
+        )
+        existing = cur.fetchone()
+        existed = existing is not None
 
         cur.execute(
             f"""
