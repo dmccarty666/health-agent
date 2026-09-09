@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS measurements (
   device_name               VARCHAR(255),
   note                      TEXT,
   raw_ble_data              JSONB,
+  source                    VARCHAR(32)   NOT NULL DEFAULT 'bridge',
 
   -- Core
   weight_kg                 DECIMAL(6,3),
