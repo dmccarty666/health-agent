@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import hmac
+import json
 import os
 import time
 import uuid
@@ -382,7 +383,10 @@ async def ingest_measurement(
 
     # Build UPSERT — same pattern as fixed sync_hume.py
     payload_dict = payload.model_dump()
-    columns = ["id", "user_id", "measured_at", "device_name", "note"] + sorted(ALL_METRIC_COLUMNS)
+    # Include raw_ble_data so the source device payload (BLE frames, scale
+    # telemetry, HealthSave relay batches) survives the ingest. Schema has
+    # the JSONB column; earlier code paths silently dropped it.
+    columns = ["id", "user_id", "measured_at", "device_name", "note", "raw_ble_data"] + sorted(ALL_METRIC_COLUMNS)
     update_cols = [c for c in columns if c not in ("id", "user_id", "measured_at")]
     update_sql = ", ".join(f"{c} = EXCLUDED.{c}" for c in update_cols)
 
@@ -393,6 +397,8 @@ async def ingest_measurement(
         payload_dict["measured_at"],
         payload_dict.get("device_name"),
         payload_dict.get("note"),
+        # JSONB column - psycopg2 will adapt dict via the registered JSON adapter
+        json.dumps(payload_dict.get("raw_ble_data")) if payload_dict.get("raw_ble_data") is not None else None,
     ) + tuple(payload_dict.get(col) for col in sorted(ALL_METRIC_COLUMNS))
 
     with get_cursor() as cur:
@@ -480,7 +486,10 @@ async def ingest_apple_health(
     # write per the design doc (so dashboard can filter by source).
     payload_dict["source"] = "apple_health"
 
-    columns = ["id", "user_id", "measured_at", "device_name", "note", "source"] + sorted(ALL_METRIC_COLUMNS)
+    # Include raw_ble_data so HealthSave's full per-sample payload survives
+    # the ingest - even metrics without dedicated columns (heart_rate, hrv,
+    # sleep, etc.) are preserved in JSONB for future use.
+    columns = ["id", "user_id", "measured_at", "device_name", "note", "source", "raw_ble_data"] + sorted(ALL_METRIC_COLUMNS)
     update_cols = [c for c in columns if c not in ("id", "user_id", "measured_at")]
     update_sql = ", ".join(f"{c} = EXCLUDED.{c}" for c in update_cols)
 
@@ -491,6 +500,8 @@ async def ingest_apple_health(
         payload_dict.get("device_name"),
         payload_dict.get("note"),
         payload_dict["source"],
+        # JSONB column - psycopg2 adapts dict via the registered JSON adapter
+        json.dumps(payload_dict.get("raw_ble_data")) if payload_dict.get("raw_ble_data") is not None else None,
     ) + tuple(payload_dict.get(col) for col in sorted(ALL_METRIC_COLUMNS))
 
     with get_cursor() as cur:
